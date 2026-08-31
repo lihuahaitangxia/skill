@@ -1,0 +1,45 @@
+{
+  "alerts": [
+    {
+      "alarmId": "alm-20260831-001",
+      "alarmName": "CVM CPU 使用率过高",
+      "resourceType": "cvm",
+      "resourceId": "ins-order-svc-001",
+      "region": "ap-guangzhou",
+      "severity": "critical",
+      "triggerTime": "2026-08-31T09:00:00+08:00",
+      "metricName": "CpuUsage",
+      "currentValue": 92.5,
+      "threshold": 90
+    },
+    {
+      "alarmId": "alm-20260831-002",
+      "alarmName": "CLB 后端不健康主机数",
+      "resourceType": "clb",
+      "resourceId": "lb-gateway-prod",
+      "region": "ap-guangzhou",
+      "severity": "warning",
+      "triggerTime": "2026-08-31T09:02:00+08:00",
+      "metricName": "UnHealthyHostCount",
+      "currentValue": 1,
+      "threshold": 0
+    },
+    {
+      "alarmId": "alm-20260831-003",
+      "alarmName": "CDB 只读实例延迟",
+      "resourceType": "cdb",
+      "resourceId": "cdb-order-primary",
+      "region": "ap-guangzhou",
+      "severity": "warning",
+      "triggerTime": "2026-08-31T09:05:00+08:00",
+      "metricName": "SlaveLag",
+      "currentValue": 45,
+      "threshold": 30
+    }
+  ],
+  "options": {
+    "metricWindowMinutes": 30,
+    "correlationWindowMinutes": 15,
+    "includeCustomerScript": true
+  }
+}

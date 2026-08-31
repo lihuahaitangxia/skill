@@ -1,0 +1,51 @@
+# 已知问题与预案场景库（只读匹配，不触发任何变更）
+scenarios:
+  - id: RB-001
+    name: 数据库只读实例延迟
+    match:
+      resourceTypes: [cdb, rds]
+      metricNames: [SlaveLag, ReplicationDelay]
+      thresholdMin: 30
+    description: 只读实例复制延迟，主库写入正常时客户读请求可能偶发超时
+    defaultPriority: P2
+    customerNote: 读库同步存在短暂延迟，写操作与核心交易不受影响
+
+  - id: RB-002
+    name: CLB 后端单节点不健康
+    match:
+      resourceTypes: [clb]
+      metricNames: [UnHealthyHostCount]
+    description: 负载均衡检测到部分后端不健康，流量已自动摘除异常节点
+    defaultPriority: P2
+    customerNote: 系统已自动切换至健康节点，整体服务能力保持正常
+
+  - id: RB-003
+    name: CVM CPU 持续高负载（已知批处理窗口）
+    match:
+      resourceTypes: [cvm]
+      metricNames: [CpuUsage]
+      tagBusinessSystem: nightly-batch
+    description: 夜间批处理任务导致的预期内 CPU 升高
+    defaultPriority: P3
+    customerNote: 属计划内批处理任务，预计于窗口结束后自动恢复
+
+  - id: RB-004
+    name: 磁盘使用率预警
+    match:
+      resourceTypes: [cvm, cdb]
+      metricNames: [DiskUsage, CvmDiskUsage]
+      thresholdMin: 80
+      thresholdMax: 90
+    description: 磁盘使用率接近阈值，尚未影响读写
+    defaultPriority: P3
+    customerNote: 存储空间使用率偏高，当前业务读写正常，团队已在关注
+
+  - id: RB-005
+    name: 多告警关联-同 VPC 网络抖动
+    match:
+      correlatedTypes: [cvm, clb]
+      minCorrelatedCount: 3
+      sameVpc: true
+    description: 同一 VPC 内多资源同时告警，疑似网络链路波动
+    defaultPriority: P1
+    customerNote: 检测到网络链路波动，技术团队正在排查，如有访问异常请反馈具体时间点
