@@ -2,9 +2,17 @@
 
 ## 解压
 
+**完整项目包**（含 CLI、Go 源码）：
+
 ```bash
 unzip alert-impact-assessment-skill.zip -d my-alert-skill
 cd my-alert-skill
+```
+
+**Cursor 导入 Skill**（Settings → Skills → Import，需 zip 根目录有 `SKILL.md`）：
+
+```bash
+# 使用 alert-impact-assessment-cursor-import.zip，不是完整项目包
 ```
 
 ## 方式 A：作为 Cursor Skill 使用

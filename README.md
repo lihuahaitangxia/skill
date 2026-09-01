@@ -51,10 +51,16 @@ export APSARASTACK_ECS_ENDPOINT="..."
 ```bash
 chmod +x scripts/package.sh
 ./scripts/package.sh
-# 输出：dist/alert-impact-assessment-skill.zip
 ```
 
-解压后参见 [INSTALL.md](INSTALL.md)。
+输出两个 zip：
+
+| 文件 | 用途 |
+|------|------|
+| `dist/alert-impact-assessment-skill.zip` | 完整项目包（CLI + Skill），解压见 [INSTALL.md](INSTALL.md) |
+| `dist/alert-impact-assessment-cursor-import.zip` | **Cursor 导入 Skill**（根目录含 `SKILL.md`） |
+
+在 Cursor 里上传 Skill 时请用 **`cursor-import.zip`**，不要用完整项目包。
 
 ## 文档
 
