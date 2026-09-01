@@ -5,21 +5,22 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/zhe-xing/alert-impact-assessment/internal/apsarastack"
 	"github.com/zhe-xing/alert-impact-assessment/internal/mockdata"
 	"github.com/zhe-xing/alert-impact-assessment/internal/models"
-	"github.com/zhe-xing/alert-impact-assessment/internal/tencentcloud"
 	"gopkg.in/yaml.v3"
 )
 
 var resourceTypeMap = map[string]string{
-	"cvm":   "cvm",
-	"ecs":   "cvm",
-	"clb":   "clb",
-	"slb":   "clb",
-	"lb":    "clb",
-	"cdb":   "cdb",
-	"rds":   "cdb",
-	"mysql": "cdb",
+	"ecs":   "ecs",
+	"cvm":   "ecs",
+	"slb":   "slb",
+	"clb":   "slb",
+	"lb":    "slb",
+	"alb":   "slb",
+	"rds":   "rds",
+	"cdb":   "rds",
+	"mysql": "rds",
 }
 
 func NormalizeResourceType(raw string) string {
@@ -96,7 +97,7 @@ func MatchScenarios(alert models.AlertInput, resource models.Resource, scenarios
 
 func contains(list []string, item string) bool {
 	for _, v := range list {
-		if v == item {
+		if v == item || NormalizeResourceType(v) == item {
 			return true
 		}
 	}
@@ -165,10 +166,10 @@ func CorrelateAlerts(processed []models.ProcessedAlert) map[string][]string {
 }
 
 type ProcessOptions struct {
-	Mock            bool
-	WindowMinutes   int
-	RunbookPath     string
-	ProjectRoot     string
+	Mock          bool
+	WindowMinutes int
+	RunbookPath   string
+	ProjectRoot   string
 }
 
 func ProcessAlerts(alerts []models.AlertInput, opts ProcessOptions) ([]models.ProcessedAlert, error) {
@@ -185,19 +186,14 @@ func ProcessAlerts(alerts []models.AlertInput, opts ProcessOptions) ([]models.Pr
 		return nil, err
 	}
 
-	cmdb := tencentcloud.NewCMDBClient()
+	cmdb := apsarastack.NewCMDBClient()
 
-	var client *tencentcloud.Client
+	var client *apsarastack.Client
 	useMock := opts.Mock
 	if !useMock {
-		secretID := os.Getenv("TENCENTCLOUD_SECRET_ID")
-		secretKey := os.Getenv("TENCENTCLOUD_SECRET_KEY")
-		region := os.Getenv("TENCENTCLOUD_REGION")
-		if region == "" {
-			region = "ap-guangzhou"
-		}
-		if secretID != "" && secretKey != "" {
-			client = tencentcloud.NewClient(secretID, secretKey, region)
+		accessKeyID, accessKeySecret, region, ok := apsarastack.LoadCredentialsFromEnv()
+		if ok {
+			client = apsarastack.NewClient(accessKeyID, accessKeySecret, region)
 		} else {
 			useMock = true
 		}
@@ -252,26 +248,26 @@ func ProcessAlerts(alerts []models.AlertInput, opts ProcessOptions) ([]models.Pr
 	return results, nil
 }
 
-func fetchResource(client *tencentcloud.Client, alert models.AlertInput, mock bool) models.Resource {
+func fetchResource(client *apsarastack.Client, alert models.AlertInput, mock bool) models.Resource {
 	if mock {
 		return mockdata.GetResource(alert.ResourceType, alert.ResourceID)
 	}
 	rt := NormalizeResourceType(alert.ResourceType)
 	switch rt {
-	case "cvm":
-		r, err := tencentcloud.DescribeInstance(client, alert.ResourceID)
+	case "ecs":
+		r, err := apsarastack.DescribeInstance(client, alert.ResourceID)
 		if err != nil {
 			return models.Resource{InstanceID: alert.ResourceID, Found: false, Tags: map[string]string{}}
 		}
 		return r
-	case "clb":
-		r, err := tencentcloud.DescribeLoadBalancer(client, alert.ResourceID)
+	case "slb":
+		r, err := apsarastack.DescribeLoadBalancer(client, alert.ResourceID)
 		if err != nil {
 			return models.Resource{InstanceID: alert.ResourceID, Found: false, Tags: map[string]string{}}
 		}
 		return r
-	case "cdb":
-		r, err := tencentcloud.DescribeDBInstance(client, alert.ResourceID)
+	case "rds":
+		r, err := apsarastack.DescribeDBInstance(client, alert.ResourceID)
 		if err != nil {
 			return models.Resource{InstanceID: alert.ResourceID, Found: false, Tags: map[string]string{}}
 		}
@@ -281,7 +277,7 @@ func fetchResource(client *tencentcloud.Client, alert models.AlertInput, mock bo
 	}
 }
 
-func fetchLineage(cmdb *tencentcloud.CMDBClient, resource models.Resource, alert models.AlertInput, mock bool) models.Lineage {
+func fetchLineage(cmdb *apsarastack.CMDBClient, resource models.Resource, alert models.AlertInput, mock bool) models.Lineage {
 	if mock {
 		return mockdata.GetLineage(alert.ResourceID)
 	}
@@ -289,14 +285,14 @@ func fetchLineage(cmdb *tencentcloud.CMDBClient, resource models.Resource, alert
 	if lineage.Available {
 		return lineage
 	}
-	return tencentcloud.LineageFromTags(resource.Tags, alert.ResourceID)
+	return apsarastack.LineageFromTags(resource.Tags, alert.ResourceID)
 }
 
-func fetchMetrics(client *tencentcloud.Client, alert models.AlertInput, window int, mock bool) models.PerceptionMetrics {
+func fetchMetrics(client *apsarastack.Client, alert models.AlertInput, window int, mock bool) models.PerceptionMetrics {
 	if mock {
 		return mockdata.GetMetrics(alert.ResourceID)
 	}
-	m, err := tencentcloud.FetchPerceptionMetrics(client, NormalizeResourceType(alert.ResourceType), alert.ResourceID, window)
+	m, err := apsarastack.FetchPerceptionMetrics(client, NormalizeResourceType(alert.ResourceType), alert.ResourceID, window)
 	if err != nil {
 		return models.PerceptionMetrics{WindowMinutes: window}
 	}

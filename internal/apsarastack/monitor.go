@@ -1,6 +1,8 @@
-package tencentcloud
+package apsarastack
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/zhe-xing/alert-impact-assessment/internal/models"
@@ -11,73 +13,71 @@ type metricConfig struct {
 	QPSMetric     string
 	ErrorMetric   string
 	LatencyMetric string
+	DimensionKey  string
 }
 
 var metricConfigs = map[string]metricConfig{
-	"cvm": {
-		Namespace:     "QCE/CVM",
-		QPSMetric:     "AccOuttraffic",
-		ErrorMetric:   "CpuUsage",
-		LatencyMetric: "MemUsage",
+	"ecs": {
+		Namespace:     "acs_ecs_dashboard",
+		QPSMetric:     "InternetInRate",
+		ErrorMetric:   "CPUUtilization",
+		LatencyMetric: "IntranetOutRate",
+		DimensionKey:  "instanceId",
 	},
-	"clb": {
-		Namespace:     "QCE/LB_PUBLIC",
-		QPSMetric:     "ClientConnum",
-		ErrorMetric:   "Http5xx",
-		LatencyMetric: "RspAvg",
-	},
-	"cdb": {
-		Namespace:     "QCE/CDB",
+	"slb": {
+		Namespace:     "acs_slb_dashboard",
 		QPSMetric:     "Qps",
+		ErrorMetric:   "HttpCode5xx",
+		LatencyMetric: "Latency",
+		DimensionKey:  "instanceId",
+	},
+	"rds": {
+		Namespace:     "acs_rds_dashboard",
+		QPSMetric:     "MySQL_QPS",
 		ErrorMetric:   "SlowQueries",
-		LatencyMetric: "QueryLatency",
+		LatencyMetric: "MySQL_NetworkTraffic",
+		DimensionKey:  "instanceId",
 	},
 }
 
-var dimKeys = map[string]string{
-	"cvm": "InstanceId",
-	"clb": "loadBalancerId",
-	"cdb": "InstanceId",
-}
-
-func getMonitorData(client *Client, namespace, metricName string, dimensions []map[string]string, windowMinutes, period int) ([]float64, error) {
-	client.Service = "monitor"
-	client.Host = "monitor.tencentcloudapi.com"
-
+func describeMetricList(client *Client, namespace, metricName, dimensionKey, resourceID string, windowMinutes int) ([]float64, error) {
+	endpoint := ServiceEndpoint("cms")
 	end := time.Now().UTC()
 	start := end.Add(-time.Duration(windowMinutes) * time.Minute)
 
-	dimInterfaces := make([]map[string]interface{}, len(dimensions))
-	for i, d := range dimensions {
-		dimInterfaces[i] = map[string]interface{}{
-			"Name":  d["Name"],
-			"Value": d["Value"],
-		}
-	}
+	dimensions, _ := json.Marshal([]map[string]string{{dimensionKey: resourceID}})
 
-	resp, err := client.Call("GetMonitorData", map[string]interface{}{
+	resp, err := client.CallRPC(endpoint, "DescribeMetricList", "2019-01-01", map[string]string{
 		"Namespace":  namespace,
 		"MetricName": metricName,
-		"Period":     period,
-		"StartTime":  start.Format("2006-01-02T15:04:05+00:00"),
-		"EndTime":    end.Format("2006-01-02T15:04:05+00:00"),
-		"Instances": []map[string]interface{}{
-			{"Dimensions": dimInterfaces},
-		},
-	}, "2018-07-24")
+		"Dimensions": string(dimensions),
+		"StartTime":  fmt.Sprintf("%d", start.UnixMilli()),
+		"EndTime":    fmt.Sprintf("%d", end.UnixMilli()),
+		"Period":     "60",
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	points, ok := resp["DataPoints"].([]interface{})
-	if !ok || len(points) == 0 {
+	datapoints, _ := resp["Datapoints"].(string)
+	if datapoints == "" {
 		return nil, nil
 	}
-	first, ok := points[0].(map[string]interface{})
-	if !ok {
-		return nil, nil
+
+	var points []map[string]interface{}
+	if err := json.Unmarshal([]byte(datapoints), &points); err != nil {
+		return nil, err
 	}
-	return asFloatSlice(first["Values"]), nil
+
+	values := make([]float64, 0, len(points))
+	for _, p := range points {
+		if v, ok := p["Average"].(float64); ok {
+			values = append(values, v)
+		} else if v, ok := p["Value"].(float64); ok {
+			values = append(values, v)
+		}
+	}
+	return values, nil
 }
 
 func summarizeSeries(values []float64, label string) models.MetricSeries {
@@ -137,23 +137,18 @@ func round2(v float64) float64 {
 func FetchPerceptionMetrics(client *Client, resourceType, resourceID string, windowMinutes int) (models.PerceptionMetrics, error) {
 	cfg, ok := metricConfigs[resourceType]
 	if !ok {
-		cfg = metricConfigs["cvm"]
+		cfg = metricConfigs["ecs"]
 	}
-	dimKey := dimKeys[resourceType]
-	if dimKey == "" {
-		dimKey = "InstanceId"
-	}
-	dimensions := []map[string]string{{"Name": dimKey, "Value": resourceID}}
 
-	qpsVals, err := getMonitorData(client, cfg.Namespace, cfg.QPSMetric, dimensions, windowMinutes, 60)
+	qpsVals, err := describeMetricList(client, cfg.Namespace, cfg.QPSMetric, cfg.DimensionKey, resourceID, windowMinutes)
 	if err != nil {
 		return models.PerceptionMetrics{}, err
 	}
-	errVals, err := getMonitorData(client, cfg.Namespace, cfg.ErrorMetric, dimensions, windowMinutes, 60)
+	errVals, err := describeMetricList(client, cfg.Namespace, cfg.ErrorMetric, cfg.DimensionKey, resourceID, windowMinutes)
 	if err != nil {
 		return models.PerceptionMetrics{}, err
 	}
-	latVals, err := getMonitorData(client, cfg.Namespace, cfg.LatencyMetric, dimensions, windowMinutes, 60)
+	latVals, err := describeMetricList(client, cfg.Namespace, cfg.LatencyMetric, cfg.DimensionKey, resourceID, windowMinutes)
 	if err != nil {
 		return models.PerceptionMetrics{}, err
 	}

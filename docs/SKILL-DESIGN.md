@@ -2,7 +2,7 @@
 
 ## 1. 概述
 
-本 Skill 面向腾讯云运维/on-call 场景，在**只读**前提下自动完成告警的业务影响评估。智能体（Cursor Agent）加载 `.cursor/skills/alert-impact-assessment/SKILL.md` 后，按工作流调用本仓库 CLI 与 OpenAPI，输出两份标准化报告。
+本 Skill 面向 **Apsara Stack** 运维/on-call 场景，在**只读**前提下自动完成告警的业务影响评估。智能体（Cursor Agent）加载 `.cursor/skills/alert-impact-assessment/SKILL.md` 后，按工作流调用本仓库 CLI 与 POP OpenAPI，输出两份标准化报告。
 
 ### 1.1 设计目标
 
@@ -24,10 +24,10 @@
               ┌──────────────┼──────────────┐
               ▼              ▼              ▼
         ┌─────────┐   ┌──────────┐   ┌─────────┐
-        │ ECS/CVM │   │ Monitor  │   │  CMDB   │
-        │ SLB/RDS │   │ GetData  │   │ Lineage │
+        │ ECS/SLB │   │   CMS    │   │  CMDB   │
+        │   RDS   │   │ MetricList│  │ Lineage │
         └─────────┘   └──────────┘   └─────────┘
-              腾讯云只读 OpenAPI          只读 HTTP GET
+           Apsara Stack POP 只读 OpenAPI    只读 HTTP GET
 ```
 
 ## 2. 输入输出定义
@@ -42,9 +42,9 @@
     {
       "alarmId": "string, 必填",
       "alarmName": "string",
-      "resourceType": "cvm|clb|cdb, 必填",
+      "resourceType": "ecs|slb|rds, 必填",
       "resourceId": "string, 必填",
-      "region": "ap-guangzhou, 默认",
+      "region": "cn-hangzhou, 默认",
       "severity": "critical|warning|info",
       "triggerTime": "ISO8601",
       "metricName": "string",
@@ -72,9 +72,13 @@
 
 | 变量 | 说明 |
 |------|------|
-| `TENCENTCLOUD_SECRET_ID` | 只读子账号 SecretId |
-| `TENCENTCLOUD_SECRET_KEY` | 只读子账号 SecretKey |
-| `TENCENTCLOUD_REGION` | 默认地域 |
+| `APSARASTACK_ACCESS_KEY_ID` | RAM 只读 AccessKey ID |
+| `APSARASTACK_ACCESS_KEY_SECRET` | RAM 只读 AccessKey Secret |
+| `APSARASTACK_REGION` | 地域 ID |
+| `APSARASTACK_ECS_ENDPOINT` | ECS POP Endpoint |
+| `APSARASTACK_SLB_ENDPOINT` | SLB POP Endpoint |
+| `APSARASTACK_RDS_ENDPOINT` | RDS POP Endpoint |
+| `APSARASTACK_CMS_ENDPOINT` | 云监控 POP Endpoint |
 | `CMDB_API_URL` | CMDB 基址（可选） |
 | `CMDB_API_TOKEN` | CMDB Bearer Token（可选） |
 
@@ -93,11 +97,11 @@
 
 | 产品 | Action | 用途 |
 |------|--------|------|
-| CVM | DescribeInstances | 实例详情、VPC、标签 |
-| CLB | DescribeLoadBalancers | 负载均衡详情、标签 |
-| CDB | DescribeDBInstances | 数据库实例详情、标签 |
-| Monitor | GetMonitorData | QPS/错误率/延迟时序 |
-| Tag | DescribeTags | 补充业务标签（可选） |
+| ECS | DescribeInstances | 实例详情、VPC、标签 |
+| SLB | DescribeLoadBalancerAttribute | 负载均衡详情、标签 |
+| RDS | DescribeDBInstanceAttribute | 数据库实例详情、标签 |
+| CMS | DescribeMetricList | QPS/错误率/延迟时序 |
+| Tag | ListTagResources | 补充业务标签（可选） |
 
 ### 3.2 CMDB / 工单（只读 HTTP）
 
@@ -108,7 +112,7 @@
 
 ### 3.3 客户端只读防护
 
-`TencentCloudClient.call()` 仅允许 Action 以 `Describe`、`Get`、`List`、`Search`、`Query` 开头，否则抛出异常。
+`Client.CallRPC()` 仅允许 Action 以 `Describe`、`Get`、`List`、`Search`、`Query` 开头，否则抛出异常。
 
 ## 4. 调用频次与限流策略
 
@@ -132,21 +136,18 @@
 | CMDB 链路 | 1 |
 | **合计** | **≈5 次/告警** |
 
-批量 10 条 ≈ 50 次，在默认 20 QPS 下约 3 秒完成（不含网络延迟）。
+### 4.3 Apsara Stack 配额参考
 
-### 4.3 腾讯云官方配额参考
-
-- CVM DescribeInstances：默认 40 次/秒（地域级）
-- Monitor GetMonitorData：默认 20 次/秒
-- 建议在 CAM 策略中绑定 `QcloudMonitorReadOnlyAccess` 等只读策略
+- Endpoint 与 QPS 限制因 Stack 版本与部署规模而异
+- 建议在 RAM 策略中绑定 `AliyunECSReadOnlyAccess`、`AliyunSLBReadOnlyAccess`、`AliyunRDSReadOnlyAccess`、`AliyunCloudMonitorReadOnlyAccess`
 
 ### 4.4 降级策略
 
 | 故障 | 降级行为 |
 |------|----------|
 | CMDB 超时 | 使用云标签链路，报告标注来源 |
-| Monitor 无数据 | 指标列显示 `-`，感知等级降为「待确认」 |
-| 凭证缺失 | 自动切换 Mock 模式 |
+| CMS 无数据 | 指标列显示 `-`，感知等级降为「待确认」 |
+| 凭证/Endpoint 缺失 | 自动切换 Mock 模式 |
 | 批量>50 | 自动分批，合并报告 |
 
 ## 5. 分级规则
@@ -165,9 +166,9 @@
 
 ## 7. 扩展指南
 
-1. **新增产品**：在 `internal/tencentcloud/` 添加 `describe_*` 模块，更新 `monitor.go` 中的 `metricConfigs`
+1. **新增产品**：在 `internal/apsarastack/` 添加模块，更新 `monitor.go` 中的 `metricConfigs`
 2. **对接工单**：扩展 `CMDBClient.GetRelatedTickets(alarmID)`
-3. **自定义话术**：修改 `internal/report/generator.go` 中的 `customerScripts` 或按客户模板外置
+3. **自定义话术**：修改 `internal/report/generator.go` 中的 `customerScripts`
 4. **Webhook 触发**：包装 `./bin/alert-assess assess` 为 CI/告警回调入口
 
 ## 8. 安全与合规
@@ -175,4 +176,4 @@
 - 所有 API 调用经 Action 前缀白名单校验
 - 报告中联系人信息脱敏（`138****5678`）
 - 不包含任何 Create/Modify/Delete/Restart 类操作
-- 建议 CAM 策略：`QcloudCVMReadOnlyAccess`、`QcloudCLBReadOnlyAccess`、`QcloudCDBReadOnlyAccess`、`QcloudMonitorReadOnlyAccess`
+- 建议 RAM 策略：`AliyunECSReadOnlyAccess`、`AliyunSLBReadOnlyAccess`、`AliyunRDSReadOnlyAccess`、`AliyunCloudMonitorReadOnlyAccess`

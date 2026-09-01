@@ -5,9 +5,9 @@ import (
 )
 
 var resources = map[string]models.Resource{
-	"ins-order-svc-001": {
-		ResourceType: "cvm",
-		InstanceID:   "ins-order-svc-001",
+	"i-order-svc-001": {
+		ResourceType: "ecs",
+		InstanceID:   "i-order-svc-001",
 		VpcID:        "vpc-core-prod",
 		Tags: map[string]string{
 			"Application":    "order-service",
@@ -19,7 +19,7 @@ var resources = map[string]models.Resource{
 		Found: true,
 	},
 	"lb-gateway-prod": {
-		ResourceType: "clb",
+		ResourceType: "slb",
 		InstanceID:   "lb-gateway-prod",
 		VpcID:        "vpc-core-prod",
 		Tags: map[string]string{
@@ -30,9 +30,9 @@ var resources = map[string]models.Resource{
 		},
 		Found: true,
 	},
-	"cdb-order-primary": {
-		ResourceType: "cdb",
-		InstanceID:   "cdb-order-primary",
+	"rm-order-primary": {
+		ResourceType: "rds",
+		InstanceID:   "rm-order-primary",
 		VpcID:        "vpc-core-prod",
 		Tags: map[string]string{
 			"Application":    "order-db",
@@ -45,7 +45,7 @@ var resources = map[string]models.Resource{
 }
 
 var metrics = map[string]models.PerceptionMetrics{
-	"ins-order-svc-001": {
+	"i-order-svc-001": {
 		QPS:           models.MetricSeries{Current: floatPtr(1250), Avg: floatPtr(1180), Trend: "rising", Label: "QPS"},
 		ErrorRate:     models.MetricSeries{Current: floatPtr(6.2), Avg: floatPtr(3.1), Trend: "rising", Label: "ErrorRate"},
 		LatencyP99:    models.MetricSeries{Current: floatPtr(820), Avg: floatPtr(450), Trend: "rising", Label: "Latency"},
@@ -57,7 +57,7 @@ var metrics = map[string]models.PerceptionMetrics{
 		LatencyP99:    models.MetricSeries{Current: floatPtr(120), Avg: floatPtr(115), Trend: "stable", Label: "Latency"},
 		WindowMinutes: 30,
 	},
-	"cdb-order-primary": {
+	"rm-order-primary": {
 		QPS:           models.MetricSeries{Current: floatPtr(320), Avg: floatPtr(300), Trend: "stable", Label: "QPS"},
 		ErrorRate:     models.MetricSeries{Current: floatPtr(0.5), Avg: floatPtr(0.3), Trend: "stable", Label: "ErrorRate"},
 		LatencyP99:    models.MetricSeries{Current: floatPtr(45), Avg: floatPtr(40), Trend: "stable", Label: "Latency"},
@@ -66,10 +66,10 @@ var metrics = map[string]models.PerceptionMetrics{
 }
 
 var lineages = map[string]models.Lineage{
-	"ins-order-svc-001": {
+	"i-order-svc-001": {
 		Available:      true,
 		Source:         "cmdb",
-		Instance:       "ins-order-svc-001",
+		Instance:       "i-order-svc-001",
 		Application:    "order-service",
 		BusinessSystem: "ecommerce-core",
 		Customer:       "华东零售集团",
@@ -86,10 +86,10 @@ var lineages = map[string]models.Lineage{
 		Owner:          "李四",
 		OwnerContact:   "139****1234",
 	},
-	"cdb-order-primary": {
+	"rm-order-primary": {
 		Available:      true,
 		Source:         "cmdb",
-		Instance:       "cdb-order-primary",
+		Instance:       "rm-order-primary",
 		Application:    "order-db",
 		BusinessSystem: "ecommerce-core",
 		Customer:       "华东零售集团",

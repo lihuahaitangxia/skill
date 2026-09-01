@@ -88,7 +88,7 @@ func runAssess(args []string) error {
 		return err
 	}
 
-	dataSource := "tencent_cloud_readonly"
+	dataSource := "apsarastack_readonly"
 	if mock {
 		dataSource = "mock"
 	}
