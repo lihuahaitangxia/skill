@@ -10,7 +10,8 @@ Apsara Stack 使用 **AccessKey + HMAC-SHA1** 签名（POP RPC 风格），Endpo
 |----------|------|
 | `APSARASTACK_ACCESS_KEY_ID` | RAM 只读子账号 AccessKey ID |
 | `APSARASTACK_ACCESS_KEY_SECRET` | RAM 只读子账号 AccessKey Secret |
-| `APSARASTACK_REGION` | 地域 ID，如 `cn-hangzhou` |
+| `APSARASTACK_REGION` | 地域 ID，如 `cn-hangzhou-1` |
+| `APSARASTACK_AZ` | 可用区后缀，如 `a`（完整 ZoneId 为 `cn-hangzhou-1-a`） |
 | `APSARASTACK_ECS_ENDPOINT` | ECS POP Endpoint |
 | `APSARASTACK_SLB_ENDPOINT` | SLB POP Endpoint |
 | `APSARASTACK_RDS_ENDPOINT` | RDS POP Endpoint |

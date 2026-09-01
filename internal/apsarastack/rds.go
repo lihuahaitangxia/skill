@@ -32,6 +32,8 @@ func DescribeDBInstance(client *Client, instanceID string) (models.Resource, err
 		ResourceType: "rds",
 		InstanceID:   strVal(db["DBInstanceId"], instanceID),
 		VpcID:        strVal(db["VpcId"], ""),
+		ZoneID:       strVal(db["ZoneId"], ""),
+		Region:       client.Region,
 		Tags:         extractTagMap(db["Tags"]),
 		Found:        true,
 	}, nil

@@ -29,7 +29,7 @@ type Client struct {
 
 func NewClient(accessKeyID, accessKeySecret, region string) *Client {
 	if region == "" {
-		region = "cn-hangzhou"
+		region = DefaultRegion
 	}
 	return &Client{
 		AccessKeyID:     accessKeyID,
@@ -52,7 +52,7 @@ func LoadCredentialsFromEnv() (accessKeyID, accessKeySecret, region string, ok b
 	region = firstNonEmpty(
 		os.Getenv("APSARASTACK_REGION"),
 		os.Getenv("ALIBABA_CLOUD_REGION"),
-		"cn-hangzhou",
+		DefaultRegion,
 	)
 	return accessKeyID, accessKeySecret, region, accessKeyID != "" && accessKeySecret != ""
 }
@@ -79,13 +79,13 @@ func ServiceEndpoint(service string) string {
 	// Placeholder defaults — override via env in Apsara Stack environments.
 	switch service {
 	case "ecs":
-		return "ecs." + envOrDefault("APSARASTACK_REGION", "cn-hangzhou") + ".example.stack.local"
+		return "ecs." + envOrDefault("APSARASTACK_REGION", DefaultRegion) + ".example.stack.local"
 	case "slb":
-		return "slb." + envOrDefault("APSARASTACK_REGION", "cn-hangzhou") + ".example.stack.local"
+		return "slb." + envOrDefault("APSARASTACK_REGION", DefaultRegion) + ".example.stack.local"
 	case "rds":
-		return "rds." + envOrDefault("APSARASTACK_REGION", "cn-hangzhou") + ".example.stack.local"
+		return "rds." + envOrDefault("APSARASTACK_REGION", DefaultRegion) + ".example.stack.local"
 	case "cms":
-		return "metrics." + envOrDefault("APSARASTACK_REGION", "cn-hangzhou") + ".example.stack.local"
+		return "metrics." + envOrDefault("APSARASTACK_REGION", DefaultRegion) + ".example.stack.local"
 	default:
 		return service + ".example.stack.local"
 	}

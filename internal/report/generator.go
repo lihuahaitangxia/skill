@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/zhe-xing/alert-impact-assessment/internal/apsarastack"
 	"github.com/zhe-xing/alert-impact-assessment/internal/models"
 	"github.com/zhe-xing/alert-impact-assessment/internal/processor"
 )
@@ -87,6 +88,29 @@ func orDefault(s, def string) string {
 		return def
 	}
 	return s
+}
+
+func alertRegion(item models.ProcessedAlert) string {
+	if item.Alert.Region != "" {
+		return item.Alert.Region
+	}
+	if item.Resource.Region != "" {
+		return item.Resource.Region
+	}
+	return apsarastack.DefaultRegion
+}
+
+func alertZone(item models.ProcessedAlert) string {
+	if item.Alert.ZoneID != "" {
+		return item.Alert.ZoneID
+	}
+	if item.Resource.ZoneID != "" {
+		return item.Resource.ZoneID
+	}
+	if item.Alert.Az != "" {
+		return apsarastack.ZoneID(alertRegion(item), item.Alert.Az)
+	}
+	return apsarastack.DefaultZoneID
 }
 
 func metricsTable(items []models.ProcessedAlert) string {
@@ -230,6 +254,7 @@ func GenerateImpactReport(items []models.ProcessedAlert, dataSource string) stri
 		sections = append(sections,
 			fmt.Sprintf("### %s — %s", item.Alert.AlarmID, item.Alert.AlarmName),
 			fmt.Sprintf("- 资源：%s/%s", item.Alert.ResourceType, item.Alert.ResourceID),
+			fmt.Sprintf("- 地域/可用区：%s / %s", alertRegion(item), alertZone(item)),
 			fmt.Sprintf("- 触发：%s = %s（阈值 %s）", item.Alert.MetricName, cur, th),
 			fmt.Sprintf("- 业务系统：%s", orDefault(item.Lineage.BusinessSystem, "未知")),
 			fmt.Sprintf("- 客户：%s", orDefault(item.Lineage.Customer, "未知")),

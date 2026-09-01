@@ -21,6 +21,8 @@ func DescribeLoadBalancer(client *Client, lbID string) (models.Resource, error) 
 		ResourceType: "slb",
 		InstanceID:   strVal(resp["LoadBalancerId"], lbID),
 		VpcID:        vpcID,
+		ZoneID:       strVal(resp["MasterZoneId"], ""),
+		Region:       client.Region,
 		Tags:         tags,
 		Found:        true,
 	}, nil

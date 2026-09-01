@@ -44,7 +44,9 @@
       "alarmName": "string",
       "resourceType": "ecs|slb|rds, 必填",
       "resourceId": "string, 必填",
-      "region": "cn-hangzhou, 默认",
+      "region": "cn-hangzhou-1, 默认",
+      "zoneId": "cn-hangzhou-1-a, 可选",
+      "az": "a, 可用区后缀，可选",
       "severity": "critical|warning|info",
       "triggerTime": "ISO8601",
       "metricName": "string",
@@ -75,6 +77,7 @@
 | `APSARASTACK_ACCESS_KEY_ID` | RAM 只读 AccessKey ID |
 | `APSARASTACK_ACCESS_KEY_SECRET` | RAM 只读 AccessKey Secret |
 | `APSARASTACK_REGION` | 地域 ID |
+| `APSARASTACK_AZ` | 可用区后缀（默认 `a`，完整 ZoneId 为 `cn-hangzhou-1-a`） |
 | `APSARASTACK_ECS_ENDPOINT` | ECS POP Endpoint |
 | `APSARASTACK_SLB_ENDPOINT` | SLB POP Endpoint |
 | `APSARASTACK_RDS_ENDPOINT` | RDS POP Endpoint |

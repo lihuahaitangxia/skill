@@ -9,6 +9,8 @@ var resources = map[string]models.Resource{
 		ResourceType: "ecs",
 		InstanceID:   "i-order-svc-001",
 		VpcID:        "vpc-core-prod",
+		ZoneID:       "cn-hangzhou-1-a",
+		Region:       "cn-hangzhou-1",
 		Tags: map[string]string{
 			"Application":    "order-service",
 			"BusinessSystem": "ecommerce-core",
@@ -22,6 +24,8 @@ var resources = map[string]models.Resource{
 		ResourceType: "slb",
 		InstanceID:   "lb-gateway-prod",
 		VpcID:        "vpc-core-prod",
+		ZoneID:       "cn-hangzhou-1-a",
+		Region:       "cn-hangzhou-1",
 		Tags: map[string]string{
 			"Application":    "api-gateway",
 			"BusinessSystem": "ecommerce-core",
@@ -34,6 +38,8 @@ var resources = map[string]models.Resource{
 		ResourceType: "rds",
 		InstanceID:   "rm-order-primary",
 		VpcID:        "vpc-core-prod",
+		ZoneID:       "cn-hangzhou-1-a",
+		Region:       "cn-hangzhou-1",
 		Tags: map[string]string{
 			"Application":    "order-db",
 			"BusinessSystem": "ecommerce-core",

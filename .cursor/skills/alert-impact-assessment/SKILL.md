@@ -50,11 +50,12 @@ go build -o bin/alert-assess ./cmd/alert-assess/
 # 真实只读 API
 export APSARASTACK_ACCESS_KEY_ID="xxx"
 export APSARASTACK_ACCESS_KEY_SECRET="xxx"
-export APSARASTACK_REGION="cn-hangzhou"
-export APSARASTACK_ECS_ENDPOINT="ecs.cn-hangzhou.xxx.stack.local"
-export APSARASTACK_SLB_ENDPOINT="slb.cn-hangzhou.xxx.stack.local"
-export APSARASTACK_RDS_ENDPOINT="rds.cn-hangzhou.xxx.stack.local"
-export APSARASTACK_CMS_ENDPOINT="metrics.cn-hangzhou.xxx.stack.local"
+export APSARASTACK_REGION="cn-hangzhou-1"
+export APSARASTACK_AZ="a"
+export APSARASTACK_ECS_ENDPOINT="ecs.cn-hangzhou-1.xxx.stack.local"
+export APSARASTACK_SLB_ENDPOINT="slb.cn-hangzhou-1.xxx.stack.local"
+export APSARASTACK_RDS_ENDPOINT="rds.cn-hangzhou-1.xxx.stack.local"
+export APSARASTACK_CMS_ENDPOINT="metrics.cn-hangzhou-1.xxx.stack.local"
 ./bin/alert-assess assess --input alerts/sample-alerts.json --output-dir reports/
 ```
 

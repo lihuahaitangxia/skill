@@ -28,13 +28,14 @@ Endpoint 需从 Apsara Uni-manager **服务注册变量** 获取：
 ```bash
 export APSARASTACK_ACCESS_KEY_ID="your-readonly-access-key-id"
 export APSARASTACK_ACCESS_KEY_SECRET="your-readonly-access-key-secret"
-export APSARASTACK_REGION="cn-hangzhou"
+export APSARASTACK_REGION="cn-hangzhou-1"
+export APSARASTACK_AZ="a"
 
 # 各产品 POP Endpoint（从运维控制台获取）
-export APSARASTACK_ECS_ENDPOINT="ecs.cn-hangzhou.xxx.stack.local"
-export APSARASTACK_SLB_ENDPOINT="slb.cn-hangzhou.xxx.stack.local"
-export APSARASTACK_RDS_ENDPOINT="rds.cn-hangzhou.xxx.stack.local"
-export APSARASTACK_CMS_ENDPOINT="metrics.cn-hangzhou.xxx.stack.local"
+export APSARASTACK_ECS_ENDPOINT="ecs.cn-hangzhou-1.xxx.stack.local"
+export APSARASTACK_SLB_ENDPOINT="slb.cn-hangzhou-1.xxx.stack.local"
+export APSARASTACK_RDS_ENDPOINT="rds.cn-hangzhou-1.xxx.stack.local"
+export APSARASTACK_CMS_ENDPOINT="metrics.cn-hangzhou-1.xxx.stack.local"
 
 export CMDB_API_URL="https://cmdb.example.com/api"   # 可选
 export CMDB_API_TOKEN="your-token"                    # 可选

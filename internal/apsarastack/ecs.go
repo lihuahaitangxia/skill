@@ -91,10 +91,19 @@ func DescribeInstance(client *Client, instanceID string) (models.Resource, error
 		}
 	}
 
+	zoneID := strVal(inst["ZoneId"], "")
+	if zoneID == "" {
+		if placement, ok := inst["Placement"].(map[string]interface{}); ok {
+			zoneID = strVal(placement["ZoneId"], "")
+		}
+	}
+
 	return models.Resource{
 		ResourceType: "ecs",
 		InstanceID:   strVal(inst["InstanceId"], instanceID),
 		VpcID:        vpcID,
+		ZoneID:       zoneID,
+		Region:       client.Region,
 		Tags:         extractTagMap(inst["Tags"]),
 		Found:        true,
 	}, nil

@@ -7,6 +7,8 @@ type AlertInput struct {
 	ResourceType  string   `json:"resourceType"`
 	ResourceID    string   `json:"resourceId"`
 	Region        string   `json:"region"`
+	ZoneID        string   `json:"zoneId"`
+	Az            string   `json:"az"`
 	Severity      string   `json:"severity"`
 	TriggerTime   string   `json:"triggerTime"`
 	MetricName    string   `json:"metricName"`
@@ -31,6 +33,8 @@ type Resource struct {
 	ResourceType string            `json:"resourceType,omitempty"`
 	InstanceID   string            `json:"InstanceId,omitempty"`
 	VpcID        string            `json:"VpcId,omitempty"`
+	ZoneID       string            `json:"ZoneId,omitempty"`
+	Region       string            `json:"Region,omitempty"`
 	Tags         map[string]string `json:"Tags"`
 	Found        bool              `json:"found"`
 }
