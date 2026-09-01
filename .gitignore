@@ -1,0 +1,5 @@
+dist/
+reports/
+bin/
+.git/
+*.zip

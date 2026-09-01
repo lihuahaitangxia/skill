@@ -46,6 +46,16 @@ export APSARASTACK_ECS_ENDPOINT="..."
 
 将整个 `.cursor/skills/alert-impact-assessment/` 目录复制到目标项目的 `.cursor/skills/` 下，并 Clone 本仓库代码（Skill 依赖 `cmd/` 与 `internal/` 中的 Go CLI）。
 
+## 打包分发
+
+```bash
+chmod +x scripts/package.sh
+./scripts/package.sh
+# 输出：dist/alert-impact-assessment-skill.zip
+```
+
+解压后参见 [INSTALL.md](INSTALL.md)。
+
 ## 文档
 
 - [Skill 设计说明](docs/SKILL-DESIGN.md)
