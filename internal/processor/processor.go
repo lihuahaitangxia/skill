@@ -13,13 +13,10 @@ import (
 
 var resourceTypeMap = map[string]string{
 	"ecs":   "ecs",
-	"cvm":   "ecs",
 	"slb":   "slb",
-	"clb":   "slb",
 	"lb":    "slb",
 	"alb":   "slb",
 	"rds":   "rds",
-	"cdb":   "rds",
 	"mysql": "rds",
 }
 

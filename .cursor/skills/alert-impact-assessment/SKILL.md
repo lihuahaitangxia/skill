@@ -4,7 +4,7 @@ description: >-
   告警业务影响评估 Skill。通过 Apsara Stack 只读 POP OpenAPI 与 CMDB/工单系统，对单条或批量告警自动完成
   业务归属链路还原、客户感知指标分析、关联告警聚合与分级处置建议生成。
   所有操作为只读，不涉及环境变更。Use when the user asks to assess alert business impact,
-  generate incident reports, or evaluate Apsara Stack / Alibaba Cloud alarms.
+  generate incident reports, or evaluate Apsara Stack alarms.
 ---
 
 # 告警业务影响评估 Skill
@@ -37,7 +37,7 @@ description: >-
 | 单条 JSON | `{"alarmId":"xxx","resourceType":"ecs","resourceId":"i-xxx"}` |
 | 自然语言描述 | "ECS i-abc123 CPU 超过 90%" |
 
-必填字段：`resourceType`（ecs/slb/rds，兼容 cvm/clb/cdb 别名）、`resourceId`。
+必填字段：`resourceType`（ecs/slb/rds）、`resourceId`。
 
 ### Step 2：调用评估引擎
 
