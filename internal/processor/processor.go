@@ -1,9 +1,11 @@
 package processor
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/zhe-xing/alert-impact-assessment/internal/apsarastack"
 	"github.com/zhe-xing/alert-impact-assessment/internal/mockdata"
@@ -114,9 +116,21 @@ func DeterminePriority(
 	if perception == "严重影响" || (errVal > 5 && errTrend == "rising") {
 		return "P1", "错误率超过 5% 且呈上升趋势，客户感知为严重影响"
 	}
+
 	if correlatedCount >= 3 {
-		return "P1", "检测到 " + itoa(correlatedCount) + " 条同源关联告警，疑似系统性问题"
+		if perception == "正常" && len(matched) > 0 {
+			p := matched[0].DefaultPriority
+			if p == "" {
+				p = "P2"
+			}
+			return p, fmt.Sprintf("同源关联 %d 条告警，匹配预案：%s", correlatedCount, matched[0].Name)
+		}
+		if perception != "正常" {
+			return "P1", fmt.Sprintf("检测到 %d 条同源关联告警且客户感知异常，疑似系统性问题", correlatedCount)
+		}
+		return "P2", fmt.Sprintf("检测到 %d 条同源关联告警，建议合并观察", correlatedCount)
 	}
+
 	if len(matched) > 0 {
 		p := matched[0].DefaultPriority
 		if p == "" {
@@ -169,7 +183,51 @@ type ProcessOptions struct {
 	ProjectRoot   string
 }
 
+const maxBatchSize = 50
+
+func NormalizeAlerts(alerts []models.AlertInput) {
+	for i := range alerts {
+		if alerts[i].Region == "" {
+			alerts[i].Region = apsarastack.DefaultRegion
+		}
+		if alerts[i].ZoneID == "" && alerts[i].Az != "" {
+			alerts[i].ZoneID = apsarastack.ZoneID(alerts[i].Region, alerts[i].Az)
+		}
+		if alerts[i].ZoneID == "" {
+			alerts[i].ZoneID = apsarastack.DefaultZoneID
+		}
+	}
+}
+
 func ProcessAlerts(alerts []models.AlertInput, opts ProcessOptions) ([]models.ProcessedAlert, error) {
+	if len(alerts) == 0 {
+		return nil, nil
+	}
+	NormalizeAlerts(alerts)
+
+	if len(alerts) <= maxBatchSize {
+		return processAlertBatch(alerts, opts)
+	}
+
+	var all []models.ProcessedAlert
+	for i := 0; i < len(alerts); i += maxBatchSize {
+		end := i + maxBatchSize
+		if end > len(alerts) {
+			end = len(alerts)
+		}
+		batch, err := processAlertBatch(alerts[i:end], opts)
+		if err != nil {
+			return nil, err
+		}
+		all = append(all, batch...)
+		if end < len(alerts) {
+			time.Sleep(2 * time.Second)
+		}
+	}
+	return all, nil
+}
+
+func processAlertBatch(alerts []models.AlertInput, opts ProcessOptions) ([]models.ProcessedAlert, error) {
 	runbookPath := opts.RunbookPath
 	if runbookPath == "" && opts.ProjectRoot != "" {
 		runbookPath = filepath.Join(opts.ProjectRoot, "config", "runbook-scenarios.yaml")

@@ -1,0 +1,23 @@
+{
+  "alerts": [
+    {
+      "alarmId": "alm-YYYYMMDD-001",
+      "alarmName": "ECS CPU 使用率过高",
+      "resourceType": "ecs",
+      "resourceId": "i-xxxxxxxx",
+      "region": "cn-hangzhou-1",
+      "zoneId": "cn-hangzhou-1-a",
+      "az": "a",
+      "severity": "critical",
+      "triggerTime": "2026-09-01T08:00:00+08:00",
+      "metricName": "CPUUtilization",
+      "currentValue": 92.5,
+      "threshold": 90
+    }
+  ],
+  "options": {
+    "metricWindowMinutes": 30,
+    "correlationWindowMinutes": 15,
+    "includeCustomerScript": true
+  }
+}

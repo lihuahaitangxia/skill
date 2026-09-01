@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/zhe-xing/alert-impact-assessment/internal/apsarastack"
 	"github.com/zhe-xing/alert-impact-assessment/internal/models"
 	"github.com/zhe-xing/alert-impact-assessment/internal/processor"
 	"github.com/zhe-xing/alert-impact-assessment/internal/report"
@@ -23,6 +24,8 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
 		}
+	case "validate":
+		runValidate()
 	case "help", "-h", "--help":
 		printUsage()
 	default:
@@ -35,13 +38,25 @@ func printUsage() {
 	fmt.Println("告警业务影响评估（只读）")
 	fmt.Println()
 	fmt.Println("Usage:")
-	fmt.Println("  alert-assess assess --input <file.json> [--output-dir reports] [--mock]")
+	fmt.Println("  alert-assess assess  --input <file.json> [--output-dir reports] [--deliverables] [--summary] [--mock]")
+	fmt.Println("  alert-assess validate")
+}
+
+func runValidate() {
+	status := apsarastack.ValidateConfig()
+	out, _ := json.MarshalIndent(status, "", "  ")
+	fmt.Println(string(out))
+	if !status.Ready && status.Mode == "readonly" {
+		os.Exit(1)
+	}
 }
 
 func runAssess(args []string) error {
 	input := ""
 	outputDir := "reports"
+	deliverablesDir := ""
 	mock := false
+	summary := false
 
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
@@ -55,8 +70,16 @@ func runAssess(args []string) error {
 				outputDir = args[i+1]
 				i++
 			}
+		case "--deliverables", "-d":
+			if i+1 < len(args) {
+				deliverablesDir = args[i+1]
+			} else {
+				deliverablesDir = "deliverables"
+			}
 		case "--mock":
 			mock = true
+		case "--summary":
+			summary = true
 		}
 	}
 
@@ -91,6 +114,12 @@ func runAssess(args []string) error {
 	dataSource := "apsarastack_readonly"
 	if mock {
 		dataSource = "mock"
+	} else {
+		st := apsarastack.ValidateConfig()
+		if !st.Ready {
+			fmt.Fprintf(os.Stderr, "Warning: config incomplete, falling back to mock. Missing: %v\n", st.Missing)
+			dataSource = "mock"
+		}
 	}
 
 	paths, err := report.WriteReports(processed, outputDir, dataSource)
@@ -102,6 +131,25 @@ func runAssess(args []string) error {
 	for name, path := range paths {
 		fmt.Printf("  %s: %s\n", name, path)
 	}
+
+	if deliverablesDir != "" {
+		dpaths, err := report.WriteDeliverables(processed, deliverablesDir, dataSource)
+		if err != nil {
+			return err
+		}
+		fmt.Println("Deliverables updated:")
+		for name, path := range dpaths {
+			fmt.Printf("  %s: %s\n", name, path)
+		}
+	}
+
+	if summary {
+		sum := report.Summary(processed, dataSource)
+		out, _ := json.MarshalIndent(sum, "", "  ")
+		fmt.Println("Summary:")
+		fmt.Println(string(out))
+	}
+
 	return nil
 }
 
@@ -112,6 +160,7 @@ func parseAlerts(data []byte) ([]models.AlertInput, int, error) {
 		if err2 := json.Unmarshal(data, &list); err2 != nil {
 			return nil, 0, err
 		}
+		processor.NormalizeAlerts(list)
 		return list, 30, nil
 	}
 
@@ -119,6 +168,7 @@ func parseAlerts(data []byte) ([]models.AlertInput, int, error) {
 	if window <= 0 {
 		window = 30
 	}
+	processor.NormalizeAlerts(file.Alerts)
 	return file.Alerts, window, nil
 }
 

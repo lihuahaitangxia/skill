@@ -203,6 +203,10 @@ func correlationSection(items []models.ProcessedAlert) string {
 
 func GenerateImpactReport(items []models.ProcessedAlert, dataSource string) string {
 	now := time.Now().Format("2006-01-02 15:04:05 MST")
+	window := 30
+	if len(items) > 0 && items[0].Metrics.WindowMinutes > 0 {
+		window = items[0].Metrics.WindowMinutes
+	}
 	var p1, p2, p3 int
 	for _, item := range items {
 		switch item.Priority {
@@ -228,11 +232,13 @@ func GenerateImpactReport(items []models.ProcessedAlert, dataSource string) stri
 		fmt.Sprintf("- P2（观察）：%d 条", p2),
 		fmt.Sprintf("- P3（可延后）：%d 条", p3),
 		"",
+		executiveRecommendation(p1, p2, p3),
+		"",
 		"## 2. 资源-业务链路图",
 		"",
 		mermaidLineage(items),
 		"",
-		"## 3. 客户感知指标快照（近 30 分钟）",
+		fmt.Sprintf("## 3. 客户感知指标快照（近 %d 分钟）", window),
 		"",
 		metricsTable(items),
 		"",
@@ -329,7 +335,42 @@ func GenerateHandlingReport(items []models.ProcessedAlert) string {
 		sections = append(sections, script.action, "", script.closing, "")
 	}
 
+	// 附录：未触发的级别仍提供标准话术模板
+	triggered := map[string]bool{}
+	for _, item := range items {
+		triggered[item.Priority] = true
+	}
+	for _, priority := range []string{"P1", "P2", "P3"} {
+		if triggered[priority] {
+			continue
+		}
+		script := customerScripts[priority]
+		sections = append(sections,
+			fmt.Sprintf("## %s — %s（本次未触发，标准模板）", priority, actionMap[priority]),
+			"",
+			script.opening,
+			"",
+			script.detail,
+			"",
+			script.action,
+			"",
+			script.closing,
+			"",
+		)
+	}
+
 	return strings.Join(sections, "\n")
+}
+
+func executiveRecommendation(p1, p2, p3 int) string {
+	switch {
+	case p1 > 0:
+		return fmt.Sprintf("**建议**：%d 条 P1 告警需立即介入，建议合并关联告警统一排查，每 15 分钟同步客户。", p1)
+	case p2 > 0:
+		return fmt.Sprintf("**建议**：%d 条 P2 告警建议持续观察 15 分钟，如指标扩大则升级 P1。", p2)
+	default:
+		return "**建议**：当前无紧急告警，可纳入常规巡检窗口处理。"
+	}
 }
 
 func filterByPriority(items []models.ProcessedAlert, priority string) []models.ProcessedAlert {
@@ -362,4 +403,41 @@ func WriteReports(items []models.ProcessedAlert, outputDir, dataSource string) (
 		"impact":   impactPath,
 		"handling": handlingPath,
 	}, nil
+}
+
+// WriteDeliverables copies reports to fixed deliverable filenames.
+func WriteDeliverables(items []models.ProcessedAlert, dir, dataSource string) (map[string]string, error) {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return nil, err
+	}
+	paths := map[string]string{
+		"impact":   filepath.Join(dir, "01-告警业务影响评估报告.md"),
+		"handling": filepath.Join(dir, "02-分级处置建议与客户沟通话术.md"),
+	}
+	if err := os.WriteFile(paths["impact"], []byte(GenerateImpactReport(items, dataSource)), 0o644); err != nil {
+		return nil, err
+	}
+	if err := os.WriteFile(paths["handling"], []byte(GenerateHandlingReport(items)), 0o644); err != nil {
+		return nil, err
+	}
+	return paths, nil
+}
+
+// Summary returns a brief JSON-friendly overview for Agent / webhook use.
+func Summary(items []models.ProcessedAlert, dataSource string) map[string]interface{} {
+	counts := map[string]int{"P1": 0, "P2": 0, "P3": 0}
+	for _, item := range items {
+		counts[item.Priority]++
+	}
+	ids := make([]string, len(items))
+	for i, item := range items {
+		ids[i] = item.Alert.AlarmID
+	}
+	return map[string]interface{}{
+		"dataSource":  dataSource,
+		"alertCount":  len(items),
+		"priorities":  counts,
+		"alarmIds":    ids,
+		"recommendation": executiveRecommendation(counts["P1"], counts["P2"], counts["P3"]),
+	}
 }
