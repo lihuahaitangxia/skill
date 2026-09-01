@@ -11,8 +11,19 @@ cd my-alert-skill
 
 **Cursor 导入 Skill**（Settings → Skills → Import，需 zip 根目录有 `SKILL.md`）：
 
-```bash
-# 使用 alert-impact-assessment-cursor-import.zip，不是完整项目包
+使用 `dist/alert-impact-assessment-cursor-import.zip`
+
+**AI Studio 导入 Skill**（上传 ZIP，需顶层 Skill 目录）：
+
+使用 `dist/alert-impact-assessment-aistudio-import.zip`
+
+结构应为：
+
+```
+alert-impact-assessment-aistudio-import.zip
+└── alert-impact-assessment/
+    ├── SKILL.md
+    └── references/
 ```
 
 ## 方式 A：作为 Cursor Skill 使用

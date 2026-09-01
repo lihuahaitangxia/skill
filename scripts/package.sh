@@ -18,7 +18,8 @@ GOOS=darwin GOARCH=arm64 go build -o dist/bin/alert-assess-darwin-arm64 ./cmd/al
 
 FULL_ZIP="dist/alert-impact-assessment-skill.zip"
 CURSOR_ZIP="dist/alert-impact-assessment-cursor-import.zip"
-rm -f "$FULL_ZIP" "$CURSOR_ZIP"
+AISTUDIO_ZIP="dist/alert-impact-assessment-aistudio-import.zip"
+rm -f "$FULL_ZIP" "$CURSOR_ZIP" "$AISTUDIO_ZIP"
 
 echo "Packing full distribution zip..."
 zip -r "$FULL_ZIP" \
@@ -38,12 +39,24 @@ cp -R "$SKILL_SRC/." "$TMP_DIR/"
   zip -r "$ROOT/$CURSOR_ZIP" SKILL.md references/
 )
 
+echo "Packing AI Studio import zip (top-level skill folder)..."
+AISTUDIO_DIR="$(mktemp -d)/alert-impact-assessment"
+mkdir -p "$AISTUDIO_DIR"
+cp -R "$SKILL_SRC/." "$AISTUDIO_DIR/"
+(
+  cd "$(dirname "$AISTUDIO_DIR")"
+  zip -r "$ROOT/$AISTUDIO_ZIP" alert-impact-assessment/
+)
+
 echo ""
 echo "Packages created:"
-ls -lh "$FULL_ZIP" "$CURSOR_ZIP"
+ls -lh "$FULL_ZIP" "$CURSOR_ZIP" "$AISTUDIO_ZIP"
 echo ""
 echo "  $FULL_ZIP"
 echo "    完整项目包（CLI + Skill 目录结构），解压见 INSTALL.md"
 echo ""
 echo "  $CURSOR_ZIP"
 echo "    Cursor 导入 Skill 用（zip 根目录含 SKILL.md）"
+echo ""
+echo "  $AISTUDIO_ZIP"
+echo "    AI Studio 导入 Skill 用（zip 内含 alert-impact-assessment/SKILL.md）"

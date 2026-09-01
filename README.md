@@ -58,9 +58,11 @@ chmod +x scripts/package.sh
 | 文件 | 用途 |
 |------|------|
 | `dist/alert-impact-assessment-skill.zip` | 完整项目包（CLI + Skill），解压见 [INSTALL.md](INSTALL.md) |
-| `dist/alert-impact-assessment-cursor-import.zip` | **Cursor 导入 Skill**（根目录含 `SKILL.md`） |
+| `dist/alert-impact-assessment-cursor-import.zip` | **Cursor** 导入（zip 根目录含 `SKILL.md`） |
+| `dist/alert-impact-assessment-aistudio-import.zip` | **AI Studio** 导入（zip 内含 `alert-impact-assessment/SKILL.md`） |
 
-在 Cursor 里上传 Skill 时请用 **`cursor-import.zip`**，不要用完整项目包。
+- Cursor 导入用 `cursor-import.zip`
+- AI Studio 导入用 `aistudio-import.zip`（不要用完整项目包或 cursor 包）
 
 ## 文档
 
