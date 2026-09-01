@@ -46,11 +46,11 @@ description: >-
 在项目根目录执行（优先使用 mock 模式验证流程）：
 
 ```bash
-# 安装依赖（首次）
-pip install -r requirements.txt
+# 构建（首次）
+go build -o bin/alert-assess ./cmd/alert-assess/
 
 # Mock 模式（无凭证，使用内置样例数据）
-python -m src.cli assess --input alerts/sample-alerts.json --mock --output-dir reports/
+./bin/alert-assess assess --input alerts/sample-alerts.json --mock --output-dir reports/
 
 # 真实只读 API（需配置环境变量）
 export TENCENTCLOUD_SECRET_ID="xxx"
@@ -58,7 +58,7 @@ export TENCENTCLOUD_SECRET_KEY="xxx"
 export TENCENTCLOUD_REGION="ap-guangzhou"
 export CMDB_API_URL="https://cmdb.example.com/api"   # 可选
 export CMDB_API_TOKEN="xxx"                           # 可选
-python -m src.cli assess --input alerts/sample-alerts.json --output-dir reports/
+./bin/alert-assess assess --input alerts/sample-alerts.json --output-dir reports/
 ```
 
 ### Step 3：业务链路还原

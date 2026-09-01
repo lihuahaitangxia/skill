@@ -165,10 +165,10 @@
 
 ## 7. 扩展指南
 
-1. **新增产品**：在 `src/tencent_cloud/` 添加 `describe_*` 模块，更新 `METRIC_CONFIG`
-2. **对接工单**：扩展 `CMDBClient.get_related_tickets(alarm_id)`
-3. **自定义话术**：修改 `report_generator.CUSTOMER_SCRIPTS` 或按客户模板外置
-4. **Webhook 触发**：包装 `python -m src.cli assess` 为 CI/告警回调入口
+1. **新增产品**：在 `internal/tencentcloud/` 添加 `describe_*` 模块，更新 `monitor.go` 中的 `metricConfigs`
+2. **对接工单**：扩展 `CMDBClient.GetRelatedTickets(alarmID)`
+3. **自定义话术**：修改 `internal/report/generator.go` 中的 `customerScripts` 或按客户模板外置
+4. **Webhook 触发**：包装 `./bin/alert-assess assess` 为 CI/告警回调入口
 
 ## 8. 安全与合规
 
