@@ -1,5 +1,5 @@
-dist/
+dist/bin/
 reports/
 bin/
 .git/
-*.zip
+# *.zip  — 分发包已纳入版本库，见 dist/alert-impact-assessment-skill.zip
