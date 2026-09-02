@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zhe-xing/alert-impact-assessment/internal/apsarastack"
+	"github.com/zhe-xing/alert-impact-assessment/internal/aliyun"
 	"github.com/zhe-xing/alert-impact-assessment/internal/models"
 	"github.com/zhe-xing/alert-impact-assessment/internal/processor"
 )
@@ -97,7 +97,7 @@ func alertRegion(item models.ProcessedAlert) string {
 	if item.Resource.Region != "" {
 		return item.Resource.Region
 	}
-	return apsarastack.DefaultRegion
+	return aliyun.DefaultRegion
 }
 
 func alertZone(item models.ProcessedAlert) string {
@@ -108,9 +108,9 @@ func alertZone(item models.ProcessedAlert) string {
 		return item.Resource.ZoneID
 	}
 	if item.Alert.Az != "" {
-		return apsarastack.ZoneID(alertRegion(item), item.Alert.Az)
+		return aliyun.ZoneID(alertRegion(item), item.Alert.Az)
 	}
-	return apsarastack.DefaultZoneID
+	return aliyun.DefaultZoneID
 }
 
 func metricsTable(items []models.ProcessedAlert) string {

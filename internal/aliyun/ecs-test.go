@@ -1,4 +1,4 @@
-package apsarastack
+package aliyun
 
 import (
 	"testing"

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/zhe-xing/alert-impact-assessment/internal/apsarastack"
+	"github.com/zhe-xing/alert-impact-assessment/internal/aliyun"
 	"github.com/zhe-xing/alert-impact-assessment/internal/mockdata"
 	"github.com/zhe-xing/alert-impact-assessment/internal/models"
 	"gopkg.in/yaml.v3"
@@ -188,13 +188,13 @@ const maxBatchSize = 50
 func NormalizeAlerts(alerts []models.AlertInput) {
 	for i := range alerts {
 		if alerts[i].Region == "" {
-			alerts[i].Region = apsarastack.DefaultRegion
+			alerts[i].Region = aliyun.DefaultRegion
 		}
 		if alerts[i].ZoneID == "" && alerts[i].Az != "" {
-			alerts[i].ZoneID = apsarastack.ZoneID(alerts[i].Region, alerts[i].Az)
+			alerts[i].ZoneID = aliyun.ZoneID(alerts[i].Region, alerts[i].Az)
 		}
 		if alerts[i].ZoneID == "" {
-			alerts[i].ZoneID = apsarastack.DefaultZoneID
+			alerts[i].ZoneID = aliyun.DefaultZoneID
 		}
 	}
 }
@@ -241,14 +241,14 @@ func processAlertBatch(alerts []models.AlertInput, opts ProcessOptions) ([]model
 		return nil, err
 	}
 
-	cmdb := apsarastack.NewCMDBClient()
+	cmdb := aliyun.NewCMDBClient()
 
-	var client *apsarastack.Client
+	var client *aliyun.Client
 	useMock := opts.Mock
 	if !useMock {
-		accessKeyID, accessKeySecret, region, ok := apsarastack.LoadCredentialsFromEnv()
+		accessKeyID, accessKeySecret, region, ok := aliyun.LoadCredentialsFromEnv()
 		if ok {
-			client = apsarastack.NewClient(accessKeyID, accessKeySecret, region)
+			client = aliyun.NewClient(accessKeyID, accessKeySecret, region)
 		} else {
 			useMock = true
 		}
@@ -303,26 +303,26 @@ func processAlertBatch(alerts []models.AlertInput, opts ProcessOptions) ([]model
 	return results, nil
 }
 
-func fetchResource(client *apsarastack.Client, alert models.AlertInput, mock bool) models.Resource {
+func fetchResource(client *aliyun.Client, alert models.AlertInput, mock bool) models.Resource {
 	if mock {
 		return mockdata.GetResource(alert.ResourceType, alert.ResourceID)
 	}
 	rt := NormalizeResourceType(alert.ResourceType)
 	switch rt {
 	case "ecs":
-		r, err := apsarastack.DescribeInstance(client, alert.ResourceID)
+		r, err := aliyun.DescribeInstance(client, alert.ResourceID)
 		if err != nil {
 			return models.Resource{InstanceID: alert.ResourceID, Found: false, Tags: map[string]string{}}
 		}
 		return r
 	case "slb":
-		r, err := apsarastack.DescribeLoadBalancer(client, alert.ResourceID)
+		r, err := aliyun.DescribeLoadBalancer(client, alert.ResourceID)
 		if err != nil {
 			return models.Resource{InstanceID: alert.ResourceID, Found: false, Tags: map[string]string{}}
 		}
 		return r
 	case "rds":
-		r, err := apsarastack.DescribeDBInstance(client, alert.ResourceID)
+		r, err := aliyun.DescribeDBInstance(client, alert.ResourceID)
 		if err != nil {
 			return models.Resource{InstanceID: alert.ResourceID, Found: false, Tags: map[string]string{}}
 		}
@@ -332,7 +332,7 @@ func fetchResource(client *apsarastack.Client, alert models.AlertInput, mock boo
 	}
 }
 
-func fetchLineage(cmdb *apsarastack.CMDBClient, resource models.Resource, alert models.AlertInput, mock bool) models.Lineage {
+func fetchLineage(cmdb *aliyun.CMDBClient, resource models.Resource, alert models.AlertInput, mock bool) models.Lineage {
 	if mock {
 		return mockdata.GetLineage(alert.ResourceID)
 	}
@@ -340,14 +340,14 @@ func fetchLineage(cmdb *apsarastack.CMDBClient, resource models.Resource, alert 
 	if lineage.Available {
 		return lineage
 	}
-	return apsarastack.LineageFromTags(resource.Tags, alert.ResourceID)
+	return aliyun.LineageFromTags(resource.Tags, alert.ResourceID)
 }
 
-func fetchMetrics(client *apsarastack.Client, alert models.AlertInput, window int, mock bool) models.PerceptionMetrics {
+func fetchMetrics(client *aliyun.Client, alert models.AlertInput, window int, mock bool) models.PerceptionMetrics {
 	if mock {
 		return mockdata.GetMetrics(alert.ResourceID)
 	}
-	m, err := apsarastack.FetchPerceptionMetrics(client, NormalizeResourceType(alert.ResourceType), alert.ResourceID, window)
+	m, err := aliyun.FetchPerceptionMetrics(client, NormalizeResourceType(alert.ResourceType), alert.ResourceID, window)
 	if err != nil {
 		return models.PerceptionMetrics{WindowMinutes: window}
 	}

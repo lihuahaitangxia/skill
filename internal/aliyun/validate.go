@@ -1,4 +1,4 @@
-package apsarastack
+package aliyun
 
 import (
 	"fmt"
@@ -8,14 +8,14 @@ import (
 
 // ConfigStatus holds environment validation results.
 type ConfigStatus struct {
-	Ready       bool     `json:"ready"`
-	Mode        string   `json:"mode"` // mock | readonly
-	Region      string   `json:"region"`
-	ZoneID      string   `json:"zoneId"`
-	HasAK       bool     `json:"hasAccessKey"`
-	Endpoints   map[string]string `json:"endpoints"`
-	Missing     []string `json:"missing,omitempty"`
-	Warnings    []string `json:"warnings,omitempty"`
+	Ready     bool              `json:"ready"`
+	Mode      string            `json:"mode"` // mock | readonly
+	Region    string            `json:"region"`
+	ZoneID    string            `json:"zoneId"`
+	HasAK     bool              `json:"hasAccessKey"`
+	Endpoints map[string]string `json:"endpoints"`
+	Missing   []string          `json:"missing,omitempty"`
+	Warnings  []string          `json:"warnings,omitempty"`
 }
 
 // ValidateConfig checks credentials and endpoints for real API mode.
@@ -35,7 +35,7 @@ func ValidateConfig() ConfigStatus {
 
 	if !hasAK {
 		status.Mode = "mock"
-		status.Warnings = append(status.Warnings, "未配置 APSARASTACK_ACCESS_KEY_ID/SECRET，将使用 Mock 模式")
+		status.Warnings = append(status.Warnings, "未配置 ALIYUN_ACCESS_KEY_ID/SECRET，将使用 Mock 模式")
 		status.Ready = true
 		return status
 	}
@@ -44,15 +44,15 @@ func ValidateConfig() ConfigStatus {
 	missing := []string{}
 	for _, svc := range services {
 		ep := status.Endpoints[svc]
-		if strings.Contains(ep, "example.stack.local") {
-			missing = append(missing, "APSARASTACK_"+strings.ToUpper(svc)+"_ENDPOINT")
+		if strings.Contains(ep, "example.") || strings.Contains(ep, "placeholder") {
+			missing = append(missing, "ALIYUN_"+strings.ToUpper(svc)+"_ENDPOINT")
 		}
 	}
 	if len(missing) > 0 {
 		status.Missing = missing
 		status.Warnings = append(status.Warnings,
-			fmt.Sprintf("AccessKey 已配置（%s...），但 POP Endpoint 仍为占位符", maskKey(ak)))
-		status.Ready = false
+			fmt.Sprintf("AccessKey 已配置（%s...），但 Endpoint 未显式配置", maskKey(ak)))
+		status.Ready = true
 	} else {
 		status.Ready = true
 	}

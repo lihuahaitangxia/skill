@@ -1,9 +1,9 @@
 ---
 name: alert-impact-assessment
 description: >-
-  告警业务影响评估 Skill（Apsara Stack 专版）。对单条或批量告警自动完成业务链路还原、
+  告警业务影响评估 Skill（aliyun 专版）。对单条或批量告警自动完成业务链路还原、
   客户感知指标分析、关联告警聚合、P1/P2/P3 分级建议与客户沟通话术生成。
-  只读操作，不变更环境。触发词：告警评估、业务影响、P1/P2/P3、Apsara Stack 告警。
+  只读操作，不变更环境。触发词：告警评估、业务影响、P1/P2/P3、aliyun 告警。
 ---
 
 # 告警业务影响评估 Skill
@@ -18,7 +18,7 @@ description: >-
 
 1. **只读** — 禁止 Create/Modify/Delete/Restart
 2. **RAM 最小权限** — 只读 AccessKey
-3. **Endpoint** — 从 Apsara Uni-manager 服务注册变量获取
+3. **Endpoint** — 从阿里云控制台或 RAM 配置获取（默认 `*.aliyuncs.com`）
 4. **脱敏** — 联系人末四位
 
 ## 工作流
@@ -69,7 +69,7 @@ cd alert-impact-assessment
    - `deliverables/01-告警业务影响评估报告.md`
    - `deliverables/02-分级处置建议与客户沟通话术.md`
 3. **关键发现**：最高优先级、关联聚合结论、客户感知
-4. **数据来源**：mock / apsarastack_readonly
+4. **数据来源**：mock / aliyun_readonly
 
 **禁止**手动编造指标数据，必须来自 CLI 输出。
 

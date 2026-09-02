@@ -1,7 +1,7 @@
 # 告警业务影响评估 Skill — 设计说明文档
 
-> 版本：Apsara Stack 专版  
-> 云厂商：Apsara Stack（POP 只读 OpenAPI）  
+> 版本：Aliyun 专版  
+> 云厂商：Aliyun（POP 只读 OpenAPI）  
 > 实现：Go CLI + Cursor Skill  
 > 安全约束：**所有操作为只读，不涉及环境变更**
 
@@ -9,7 +9,7 @@
 
 ## 1. 概述
 
-本 Skill 面向 Apsara Stack 运维/on-call 场景，自动完成：
+本 Skill 面向 Aliyun 运维/on-call 场景，自动完成：
 
 1. 告警涉及资源的**业务归属链路还原**（实例 → 应用 → 业务系统 → 客户责任人）
 2. **实时业务流量与客户感知判断**（QPS、错误率、响应时间近 30min 趋势）
@@ -19,7 +19,7 @@
 ### 1.1 架构
 
 ```
-告警 JSON → processor → apsarastack POP API（ECS/SLB/RDS/CMS）
+告警 JSON → processor → aliyun POP API（ECS/SLB/RDS/CMS）
                 ↓
          report generator → 两份 Markdown 报告
                 ↓
@@ -33,7 +33,7 @@
 | CLI 入口 | `cmd/alert-assess/main.go` |
 | 告警处理 | `internal/processor/processor.go` |
 | 报告生成 | `internal/report/generator.go` |
-| API 客户端 | `internal/apsarastack/` |
+| API 客户端 | `internal/aliyun/` |
 | Cursor Skill | `.cursor/skills/alert-impact-assessment/SKILL.md` |
 | 预案库 | `config/runbook-scenarios.yaml` |
 
@@ -88,14 +88,14 @@ go build -o bin/alert-assess ./cmd/alert-assess/
 
 | 变量 | 说明 |
 |------|------|
-| `APSARASTACK_ACCESS_KEY_ID` | RAM 只读 AccessKey ID |
-| `APSARASTACK_ACCESS_KEY_SECRET` | RAM 只读 AccessKey Secret |
-| `APSARASTACK_REGION` | 地域 ID，默认 `cn-hangzhou-1` |
-| `APSARASTACK_AZ` | 可用区后缀，默认 `a`（完整 ZoneId: `cn-hangzhou-1-a`） |
-| `APSARASTACK_ECS_ENDPOINT` | ECS POP Endpoint |
-| `APSARASTACK_SLB_ENDPOINT` | SLB POP Endpoint |
-| `APSARASTACK_RDS_ENDPOINT` | RDS POP Endpoint |
-| `APSARASTACK_CMS_ENDPOINT` | 云监控 POP Endpoint |
+| `ALIYUN_ACCESS_KEY_ID` | RAM 只读 AccessKey ID |
+| `ALIYUN_ACCESS_KEY_SECRET` | RAM 只读 AccessKey Secret |
+| `ALIYUN_REGION` | 地域 ID，默认 `cn-hangzhou-1` |
+| `ALIYUN_AZ` | 可用区后缀，默认 `a`（完整 ZoneId: `cn-hangzhou-1-a`） |
+| `ALIYUN_ECS_ENDPOINT` | ECS POP Endpoint |
+| `ALIYUN_SLB_ENDPOINT` | SLB POP Endpoint |
+| `ALIYUN_RDS_ENDPOINT` | RDS POP Endpoint |
+| `ALIYUN_CMS_ENDPOINT` | 云监控 POP Endpoint |
 | `CMDB_API_URL` | CMDB 基址（可选） |
 | `CMDB_API_TOKEN` | CMDB Bearer Token（可选） |
 
@@ -112,7 +112,7 @@ go build -o bin/alert-assess ./cmd/alert-assess/
 
 ## 3. 依赖只读 OpenAPI 清单
 
-> 通过 Apsara Stack POP 网关调用，Action 前缀限定：`Describe` / `Get` / `List` / `Query` / `Search`
+> 通过 Aliyun POP 网关调用，Action 前缀限定：`Describe` / `Get` / `List` / `Query` / `Search`
 
 ### 3.1 ECS（弹性计算）
 
@@ -230,5 +230,5 @@ go build -o bin/alert-assess ./cmd/alert-assess/
 
 - 禁止 Create / Modify / Delete / Restart 类 API
 - 报告联系人脱敏（`138****5678`）
-- POP Endpoint 从 Apsara Uni-manager 服务注册变量获取
+- POP Endpoint 从 阿里云控制台 服务注册变量获取
 - 建议使用 RAM 只读子账号，最小权限原则

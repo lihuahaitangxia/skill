@@ -1,4 +1,4 @@
-package apsarastack
+package aliyun
 
 import (
 	"crypto/hmac"
@@ -18,13 +18,13 @@ import (
 
 var readonlyPrefixes = []string{"Describe", "Get", "List", "Search", "Query"}
 
-// Client is a minimal POP RPC client for Apsara Stack read-only APIs.
+// Client is a minimal POP RPC client for Aliyun read-only APIs.
 type Client struct {
-	AccessKeyID  string
+	AccessKeyID     string
 	AccessKeySecret string
-	Region       string
-	RateLimiter  *RateLimiter
-	httpClient   *http.Client
+	Region          string
+	RateLimiter     *RateLimiter
+	httpClient      *http.Client
 }
 
 func NewClient(accessKeyID, accessKeySecret, region string) *Client {
@@ -42,52 +42,42 @@ func NewClient(accessKeyID, accessKeySecret, region string) *Client {
 
 func LoadCredentialsFromEnv() (accessKeyID, accessKeySecret, region string, ok bool) {
 	accessKeyID = firstNonEmpty(
-		os.Getenv("APSARASTACK_ACCESS_KEY_ID"),
+		os.Getenv("ALIYUN_ACCESS_KEY_ID"),
 		os.Getenv("ALIBABA_CLOUD_ACCESS_KEY_ID"),
 	)
 	accessKeySecret = firstNonEmpty(
-		os.Getenv("APSARASTACK_ACCESS_KEY_SECRET"),
+		os.Getenv("ALIYUN_ACCESS_KEY_SECRET"),
 		os.Getenv("ALIBABA_CLOUD_ACCESS_KEY_SECRET"),
 	)
 	region = firstNonEmpty(
-		os.Getenv("APSARASTACK_REGION"),
+		os.Getenv("ALIYUN_REGION"),
 		os.Getenv("ALIBABA_CLOUD_REGION"),
 		DefaultRegion,
 	)
 	return accessKeyID, accessKeySecret, region, accessKeyID != "" && accessKeySecret != ""
 }
 
-func firstNonEmpty(values ...string) string {
-	for _, v := range values {
-		if v != "" {
-			return v
-		}
-	}
-	return ""
-}
-
 // ServiceEndpoint returns the POP endpoint for a cloud product.
-// Apsara Stack endpoints are deployment-specific; obtain from Uni-manager Service Registration Dashboard.
 func ServiceEndpoint(service string) string {
-	key := "APSARASTACK_" + strings.ToUpper(service) + "_ENDPOINT"
+	key := "ALIYUN_" + strings.ToUpper(service) + "_ENDPOINT"
 	if v := os.Getenv(key); v != "" {
 		return strings.TrimPrefix(v, "https://")
 	}
-	if v := os.Getenv("APSARASTACK_POP_ENDPOINT"); v != "" {
+	if v := os.Getenv("ALIYUN_POP_ENDPOINT"); v != "" {
 		return strings.TrimPrefix(v, "https://")
 	}
-	// Placeholder defaults — override via env in Apsara Stack environments.
+	region := envOrDefault("ALIYUN_REGION", DefaultRegion)
 	switch service {
 	case "ecs":
-		return "ecs." + envOrDefault("APSARASTACK_REGION", DefaultRegion) + ".example.stack.local"
+		return "ecs." + region + ".aliyuncs.com"
 	case "slb":
-		return "slb." + envOrDefault("APSARASTACK_REGION", DefaultRegion) + ".example.stack.local"
+		return "slb." + region + ".aliyuncs.com"
 	case "rds":
-		return "rds." + envOrDefault("APSARASTACK_REGION", DefaultRegion) + ".example.stack.local"
+		return "rds." + region + ".aliyuncs.com"
 	case "cms":
-		return "metrics." + envOrDefault("APSARASTACK_REGION", DefaultRegion) + ".example.stack.local"
+		return "metrics." + region + ".aliyuncs.com"
 	default:
-		return service + ".example.stack.local"
+		return service + "." + region + ".aliyuncs.com"
 	}
 }
 
@@ -196,7 +186,7 @@ func (c *Client) CallRPC(endpoint, action, version string, params map[string]str
 
 	if code, ok := envelope["Code"].(string); ok && code != "" {
 		msg, _ := envelope["Message"].(string)
-		return nil, fmt.Errorf("Apsara Stack API error: %s - %s", code, msg)
+		return nil, fmt.Errorf("Aliyun API error: %s - %s", code, msg)
 	}
 	return envelope, nil
 }

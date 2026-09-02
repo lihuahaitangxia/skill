@@ -63,17 +63,17 @@ chmod +x bin/alert-assess-darwin-arm64   # Apple Silicon Mac
 ./bin/alert-assess-darwin-arm64 assess --input alerts/sample-alerts.json --mock --deliverables deliverables
 ```
 
-## 环境变量（真实 Apsara Stack）
+## 环境变量（真实 Aliyun）
 
 ```bash
-export APSARASTACK_ACCESS_KEY_ID="..."
-export APSARASTACK_ACCESS_KEY_SECRET="..."
-export APSARASTACK_REGION="cn-hangzhou-1"
-export APSARASTACK_AZ="a"
-export APSARASTACK_ECS_ENDPOINT="..."
-export APSARASTACK_SLB_ENDPOINT="..."
-export APSARASTACK_RDS_ENDPOINT="..."
-export APSARASTACK_CMS_ENDPOINT="..."
+export ALIYUN_ACCESS_KEY_ID="..."
+export ALIYUN_ACCESS_KEY_SECRET="..."
+export ALIYUN_REGION="cn-hangzhou-1"
+export ALIYUN_AZ="a"
+export ALIYUN_ECS_ENDPOINT="..."
+export ALIYUN_SLB_ENDPOINT="..."
+export ALIYUN_RDS_ENDPOINT="..."
+export ALIYUN_CMS_ENDPOINT="..."
 ```
 
 ## 包内文件说明

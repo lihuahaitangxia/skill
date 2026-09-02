@@ -2,7 +2,7 @@
 
 ## 1. 概述
 
-本 Skill 面向 **Apsara Stack** 运维/on-call 场景，在**只读**前提下自动完成告警的业务影响评估。智能体（Cursor Agent）加载 `.cursor/skills/alert-impact-assessment/SKILL.md` 后，按工作流调用本仓库 CLI 与 POP OpenAPI，输出两份标准化报告。
+本 Skill 面向 **Aliyun** 运维/on-call 场景，在**只读**前提下自动完成告警的业务影响评估。智能体（Cursor Agent）加载 `.cursor/skills/alert-impact-assessment/SKILL.md` 后，按工作流调用本仓库 CLI 与 POP OpenAPI，输出两份标准化报告。
 
 ### 1.1 设计目标
 
@@ -27,7 +27,7 @@
         │ ECS/SLB │   │   CMS    │   │  CMDB   │
         │   RDS   │   │ MetricList│  │ Lineage │
         └─────────┘   └──────────┘   └─────────┘
-           Apsara Stack POP 只读 OpenAPI    只读 HTTP GET
+           Aliyun POP 只读 OpenAPI    只读 HTTP GET
 ```
 
 ## 2. 输入输出定义
@@ -74,14 +74,14 @@
 
 | 变量 | 说明 |
 |------|------|
-| `APSARASTACK_ACCESS_KEY_ID` | RAM 只读 AccessKey ID |
-| `APSARASTACK_ACCESS_KEY_SECRET` | RAM 只读 AccessKey Secret |
-| `APSARASTACK_REGION` | 地域 ID |
-| `APSARASTACK_AZ` | 可用区后缀（默认 `a`，完整 ZoneId 为 `cn-hangzhou-1-a`） |
-| `APSARASTACK_ECS_ENDPOINT` | ECS POP Endpoint |
-| `APSARASTACK_SLB_ENDPOINT` | SLB POP Endpoint |
-| `APSARASTACK_RDS_ENDPOINT` | RDS POP Endpoint |
-| `APSARASTACK_CMS_ENDPOINT` | 云监控 POP Endpoint |
+| `ALIYUN_ACCESS_KEY_ID` | RAM 只读 AccessKey ID |
+| `ALIYUN_ACCESS_KEY_SECRET` | RAM 只读 AccessKey Secret |
+| `ALIYUN_REGION` | 地域 ID |
+| `ALIYUN_AZ` | 可用区后缀（默认 `a`，完整 ZoneId 为 `cn-hangzhou-1-a`） |
+| `ALIYUN_ECS_ENDPOINT` | ECS POP Endpoint |
+| `ALIYUN_SLB_ENDPOINT` | SLB POP Endpoint |
+| `ALIYUN_RDS_ENDPOINT` | RDS POP Endpoint |
+| `ALIYUN_CMS_ENDPOINT` | 云监控 POP Endpoint |
 | `CMDB_API_URL` | CMDB 基址（可选） |
 | `CMDB_API_TOKEN` | CMDB Bearer Token（可选） |
 
@@ -139,7 +139,7 @@
 | CMDB 链路 | 1 |
 | **合计** | **≈5 次/告警** |
 
-### 4.3 Apsara Stack 配额参考
+### 4.3 Aliyun 配额参考
 
 - Endpoint 与 QPS 限制因 Stack 版本与部署规模而异
 - 建议在 RAM 策略中绑定 `AliyunECSReadOnlyAccess`、`AliyunSLBReadOnlyAccess`、`AliyunRDSReadOnlyAccess`、`AliyunCloudMonitorReadOnlyAccess`
@@ -169,7 +169,7 @@
 
 ## 7. 扩展指南
 
-1. **新增产品**：在 `internal/apsarastack/` 添加模块，更新 `monitor.go` 中的 `metricConfigs`
+1. **新增产品**：在 `internal/aliyun/` 添加模块，更新 `monitor.go` 中的 `metricConfigs`
 2. **对接工单**：扩展 `CMDBClient.GetRelatedTickets(alarmID)`
 3. **自定义话术**：修改 `internal/report/generator.go` 中的 `customerScripts`
 4. **Webhook 触发**：包装 `./bin/alert-assess assess` 为 CI/告警回调入口

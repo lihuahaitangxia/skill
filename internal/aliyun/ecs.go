@@ -1,4 +1,4 @@
-package apsarastack
+package aliyun
 
 import (
 	"github.com/zhe-xing/alert-impact-assessment/internal/models"

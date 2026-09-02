@@ -13,7 +13,7 @@
 | **AI Studio** | 导入 Skill zip，或加载 Skill 后调用 `assess.sh` |
 | **Shell / Cron** | 定时 `assess.sh`，报告在 `deliverables/` |
 | **Jenkins / GitLab CI** | pipeline 中 `go build && ./scripts/assess.sh` |
-| **K8s Job** | 容器内运行 CLI，Secret 注入 APSARASTACK_* |
+| **K8s Job** | 容器内运行 CLI，Secret 注入 ALIYUN_* |
 | **Dify / Coze / FastGPT** | 自定义工具执行 shell 命令 |
 | **Webhook 告警** | 接收 POST → 写 JSON → 调 CLI → 推送 Markdown |
 
@@ -55,6 +55,6 @@ def handle_alert(payload: dict):
 
 1. Clone 仓库
 2. 安装 Go 1.22+（或交叉编译二进制）
-3. 配置 `APSARASTACK_*` 环境变量
+3. 配置 `ALIYUN_*` 环境变量
 4. 准备告警 JSON（见 alert-template.json）
 5. 运行 `./scripts/assess.sh`

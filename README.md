@@ -1,6 +1,6 @@
 # 告警业务影响评估 Skill
 
-通过 Apsara Stack 只读 POP OpenAPI 与 CMDB，对单条或批量告警自动完成业务影响评估。**所有操作为只读。**
+通过 Aliyun 只读 POP OpenAPI 与 CMDB，对单条或批量告警自动完成业务影响评估。**所有操作为只读。**
 
 ## 作为 AI Studio Skill 使用
 
@@ -16,7 +16,7 @@ Skill 已内置在仓库：
 
 - 「评估这批告警的业务影响」
 - 「生成告警影响评估报告」
-- 「分析 Apsara Stack 告警并输出 P1/P2/P3 建议」
+- 「分析 Aliyun 告警并输出 P1/P2/P3 建议」
 
 ## 快速运行（CLI）
 
@@ -27,10 +27,10 @@ go build -o bin/alert-assess ./cmd/alert-assess/
 # Mock 演示
 ./scripts/assess.sh --mock
 
-# 真实 Apsara Stack（需配置环境变量）
-export APSARASTACK_ACCESS_KEY_ID="..."
-export APSARASTACK_ACCESS_KEY_SECRET="..."
-export APSARASTACK_ECS_ENDPOINT="..."
+# 真实 Aliyun（需配置环境变量）
+export ALIYUN_ACCESS_KEY_ID="..."
+export ALIYUN_ACCESS_KEY_SECRET="..."
+export ALIYUN_ECS_ENDPOINT="..."
 ./scripts/assess.sh
 ```
 

@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/zhe-xing/alert-impact-assessment/internal/apsarastack"
+	"github.com/zhe-xing/alert-impact-assessment/internal/aliyun"
 	"github.com/zhe-xing/alert-impact-assessment/internal/models"
 	"github.com/zhe-xing/alert-impact-assessment/internal/processor"
 	"github.com/zhe-xing/alert-impact-assessment/internal/report"
@@ -43,7 +43,7 @@ func printUsage() {
 }
 
 func runValidate() {
-	status := apsarastack.ValidateConfig()
+	status := aliyun.ValidateConfig()
 	out, _ := json.MarshalIndent(status, "", "  ")
 	fmt.Println(string(out))
 	if !status.Ready && status.Mode == "readonly" {
@@ -111,11 +111,11 @@ func runAssess(args []string) error {
 		return err
 	}
 
-	dataSource := "apsarastack_readonly"
+	dataSource := "aliyun_readonly"
 	if mock {
 		dataSource = "mock"
 	} else {
-		st := apsarastack.ValidateConfig()
+		st := aliyun.ValidateConfig()
 		if !st.Ready {
 			fmt.Fprintf(os.Stderr, "Warning: config incomplete, falling back to mock. Missing: %v\n", st.Missing)
 			dataSource = "mock"

@@ -1,20 +1,20 @@
-package apsarastack
+package aliyun
 
 import (
 	"os"
 	"strings"
 )
 
-// Default region and availability zone for Apsara Stack deployments.
+// Default region and availability zone for Aliyun deployments.
 const (
-	DefaultRegion     = "cn-hangzhou-1"
+	DefaultRegion     = "cn-hangzhou"
 	DefaultZoneSuffix = "a"
 	DefaultZoneID     = DefaultRegion + "-" + DefaultZoneSuffix
 )
 
-// ZoneIDFromEnv resolves the full zone ID from APSARASTACK_AZ and region.
+// ZoneIDFromEnv resolves the full zone ID from ALIYUN_AZ and region.
 func ZoneIDFromEnv(region string) string {
-	az := os.Getenv("APSARASTACK_AZ")
+	az := os.Getenv("ALIYUN_AZ")
 	if az == "" {
 		az = DefaultZoneSuffix
 	}
@@ -31,4 +31,13 @@ func ZoneID(region, az string) string {
 		region = DefaultRegion
 	}
 	return region + "-" + az
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, v := range values {
+		if v != "" {
+			return v
+		}
+	}
+	return ""
 }

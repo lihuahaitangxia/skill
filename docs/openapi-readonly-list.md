@@ -1,22 +1,22 @@
-# Apsara Stack 只读 OpenAPI 清单
+# Aliyun 只读 OpenAPI 清单
 
-> 本 Skill 通过 Apsara Stack POP 网关调用以下只读接口。Action 名称以 `Describe` / `Get` / `List` / `Query` / `Search` 开头。
+> 本 Skill 通过 Aliyun POP 网关调用以下只读接口。Action 名称以 `Describe` / `Get` / `List` / `Query` / `Search` 开头。
 
 ## 认证与 Endpoint
 
-Apsara Stack 使用 **AccessKey + HMAC-SHA1** 签名（POP RPC 风格），Endpoint 需从 **Apsara Uni-manager 运维控制台 → 服务注册变量** 获取，或通过现场运维工程师提供。
+Aliyun 使用 **AccessKey + HMAC-SHA1** 签名（POP RPC 风格），Endpoint 需从 **阿里云控制台 运维控制台 → 服务注册变量** 获取，或通过现场运维工程师提供。
 
 | 环境变量 | 说明 |
 |----------|------|
-| `APSARASTACK_ACCESS_KEY_ID` | RAM 只读子账号 AccessKey ID |
-| `APSARASTACK_ACCESS_KEY_SECRET` | RAM 只读子账号 AccessKey Secret |
-| `APSARASTACK_REGION` | 地域 ID，如 `cn-hangzhou-1` |
-| `APSARASTACK_AZ` | 可用区后缀，如 `a`（完整 ZoneId 为 `cn-hangzhou-1-a`） |
-| `APSARASTACK_ECS_ENDPOINT` | ECS POP Endpoint |
-| `APSARASTACK_SLB_ENDPOINT` | SLB POP Endpoint |
-| `APSARASTACK_RDS_ENDPOINT` | RDS POP Endpoint |
-| `APSARASTACK_CMS_ENDPOINT` | 云监控 POP Endpoint |
-| `APSARASTACK_POP_ENDPOINT` | 统一 POP 网关（可选，作为各服务 fallback） |
+| `ALIYUN_ACCESS_KEY_ID` | RAM 只读子账号 AccessKey ID |
+| `ALIYUN_ACCESS_KEY_SECRET` | RAM 只读子账号 AccessKey Secret |
+| `ALIYUN_REGION` | 地域 ID，如 `cn-hangzhou-1` |
+| `ALIYUN_AZ` | 可用区后缀，如 `a`（完整 ZoneId 为 `cn-hangzhou-1-a`） |
+| `ALIYUN_ECS_ENDPOINT` | ECS POP Endpoint |
+| `ALIYUN_SLB_ENDPOINT` | SLB POP Endpoint |
+| `ALIYUN_RDS_ENDPOINT` | RDS POP Endpoint |
+| `ALIYUN_CMS_ENDPOINT` | 云监控 POP Endpoint |
+| `ALIYUN_POP_ENDPOINT` | 统一 POP 网关（可选，作为各服务 fallback） |
 
 也支持标准别名：`ALIBABA_CLOUD_ACCESS_KEY_ID`、`ALIBABA_CLOUD_ACCESS_KEY_SECRET`、`ALIBABA_CLOUD_REGION`。
 
@@ -27,7 +27,7 @@ Apsara Stack 使用 **AccessKey + HMAC-SHA1** 签名（POP RPC 风格），Endpo
 | DescribeInstances | 2014-05-26 | 实例详情、VPC、标签 | InstanceIds |
 | DescribeInstanceStatus | 2014-05-26 | 实例运行状态 | InstanceIds |
 
-**Endpoint 变量**: `APSARASTACK_ECS_ENDPOINT`
+**Endpoint 变量**: `ALIYUN_ECS_ENDPOINT`
 
 ## SLB（负载均衡）
 
@@ -37,7 +37,7 @@ Apsara Stack 使用 **AccessKey + HMAC-SHA1** 签名（POP RPC 风格），Endpo
 | DescribeLoadBalancerAttribute | 2014-05-15 | 后端健康状态 | LoadBalancerId |
 | DescribeLoadBalancerListeners | 2014-05-15 | 监听器配置 | LoadBalancerId |
 
-**Endpoint 变量**: `APSARASTACK_SLB_ENDPOINT`
+**Endpoint 变量**: `ALIYUN_SLB_ENDPOINT`
 
 ## RDS（云数据库）
 
@@ -47,7 +47,7 @@ Apsara Stack 使用 **AccessKey + HMAC-SHA1** 签名（POP RPC 风格），Endpo
 | DescribeDBInstancePerformance | 2014-08-15 | 实例性能（扩展） | DBInstanceId |
 | DescribeReadDBInstanceDelay | 2014-08-15 | 只读实例延迟 | DBInstanceId |
 
-**Endpoint 变量**: `APSARASTACK_RDS_ENDPOINT`
+**Endpoint 变量**: `ALIYUN_RDS_ENDPOINT`
 
 ## 云监控 CMS
 
@@ -57,7 +57,7 @@ Apsara Stack 使用 **AccessKey + HMAC-SHA1** 签名（POP RPC 风格），Endpo
 | DescribeMetricLast | 2019-01-01 | 最新数据点 | Namespace, MetricName, Dimensions |
 | DescribeAlertLogList | 2019-01-01 | 历史告警（关联分析扩展） | — |
 
-**Endpoint 变量**: `APSARASTACK_CMS_ENDPOINT`
+**Endpoint 变量**: `ALIYUN_CMS_ENDPOINT`
 
 ### 常用监控命名空间与指标
 
