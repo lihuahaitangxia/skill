@@ -423,7 +423,7 @@ func WriteDeliverables(items []models.ProcessedAlert, dir, dataSource string) (m
 	return paths, nil
 }
 
-// Summary returns a brief JSON-friendly overview for Agent / webhook use.
+// Summary returns a brief JSON-friendly overview for API / webhook use.
 func Summary(items []models.ProcessedAlert, dataSource string) map[string]interface{} {
 	counts := map[string]int{"P1": 0, "P2": 0, "P3": 0}
 	for _, item := range items {

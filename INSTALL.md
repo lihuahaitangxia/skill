@@ -9,10 +9,6 @@ unzip alert-impact-assessment-skill.zip -d my-alert-skill
 cd my-alert-skill
 ```
 
-**Cursor 导入 Skill**（Settings → Skills → Import，需 zip 根目录有 `SKILL.md`）：
-
-使用 `dist/alert-impact-assessment-cursor-import.zip`
-
 **AI Studio 导入 Skill**（上传 ZIP，需顶层 Skill 目录）：
 
 使用 `dist/alert-impact-assessment-aistudio-import.zip`
@@ -26,13 +22,13 @@ alert-impact-assessment-aistudio-import.zip
     └── references/
 ```
 
-## 方式 A：作为 Cursor Skill 使用
+## 方式 A：作为 AI Studio Skill 使用
 
-1. 将 `.cursor/skills/alert-impact-assessment/` 复制到你的项目 `.cursor/skills/` 下
-2. 将 `cmd/`、`internal/`、`config/`、`scripts/`、`go.mod` 等复制到项目根目录（或保持本目录结构）
-3. 在 Cursor 中说「评估告警业务影响」即可触发
+1. 在 AI Studio 导入 `dist/alert-impact-assessment-aistudio-import.zip`
+2. 或将 `.cursor/skills/alert-impact-assessment/` 与 `cmd/`、`internal/`、`config/`、`scripts/` 等一并部署到可执行环境
+3. 在对话中说「评估告警业务影响」触发 Skill 工作流
 
-## 方式 B：仅 CLI 使用（无需 Cursor）
+## 方式 B：仅 CLI 使用
 
 ```bash
 # 需要 Go 1.22+
@@ -66,7 +62,7 @@ export APSARASTACK_CMS_ENDPOINT="..."
 
 | 路径 | 说明 |
 |------|------|
-| `.cursor/skills/alert-impact-assessment/` | Cursor Skill |
+| `.cursor/skills/alert-impact-assessment/` | AI Studio Skill |
 | `cmd/` + `internal/` | Go 评估引擎 |
 | `scripts/assess.sh` | 一键运行脚本 |
 | `config/runbook-scenarios.yaml` | 预案库 |

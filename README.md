@@ -2,7 +2,7 @@
 
 通过 Apsara Stack 只读 POP OpenAPI 与 CMDB，对单条或批量告警自动完成业务影响评估。**所有操作为只读。**
 
-## 作为 Cursor Skill 使用
+## 作为 AI Studio Skill 使用
 
 Skill 已内置在仓库：
 
@@ -10,15 +10,15 @@ Skill 已内置在仓库：
 .cursor/skills/alert-impact-assessment/SKILL.md
 ```
 
-在 Cursor 中说以下任意一句话即可触发：
+在 AI Studio 中导入 `dist/alert-impact-assessment-aistudio-import.zip`，或手动加载上述 Skill 目录。
+
+触发示例：
 
 - 「评估这批告警的业务影响」
 - 「生成告警影响评估报告」
 - 「分析 Apsara Stack 告警并输出 P1/P2/P3 建议」
 
-Agent 将自动加载 Skill，执行 CLI，输出两份报告至 `deliverables/`。
-
-## 快速运行（无需 Agent）
+## 快速运行（CLI）
 
 ```bash
 # 构建
@@ -44,7 +44,7 @@ export APSARASTACK_ECS_ENDPOINT="..."
 
 ## 安装到其他项目
 
-将整个 `.cursor/skills/alert-impact-assessment/` 目录复制到目标项目的 `.cursor/skills/` 下，并 Clone 本仓库代码（Skill 依赖 `cmd/` 与 `internal/` 中的 Go CLI）。
+将 `.cursor/skills/alert-impact-assessment/` 复制到目标项目 Skill 目录，并 Clone 本仓库代码（Skill 依赖 `cmd/` 与 `internal/` 中的 Go CLI）。
 
 ## 打包分发
 
@@ -58,11 +58,9 @@ chmod +x scripts/package.sh
 | 文件 | 用途 |
 |------|------|
 | `dist/alert-impact-assessment-skill.zip` | 完整项目包（CLI + Skill），解压见 [INSTALL.md](INSTALL.md) |
-| `dist/alert-impact-assessment-cursor-import.zip` | **Cursor** 导入（zip 根目录含 `SKILL.md`） |
 | `dist/alert-impact-assessment-aistudio-import.zip` | **AI Studio** 导入（zip 内含 `alert-impact-assessment/SKILL.md`） |
 
-- Cursor 导入用 `cursor-import.zip`
-- AI Studio 导入用 `aistudio-import.zip`（不要用完整项目包或 cursor 包）
+AI Studio 导入请用 `aistudio-import.zip`，不要用完整项目包。
 
 ## 文档
 

@@ -10,7 +10,7 @@
 
 | 平台 | 集成方式 |
 |------|----------|
-| **Cursor** | 加载 Skill，Agent 自动调用 `assess.sh` |
+| **AI Studio** | 导入 Skill zip，或加载 Skill 后调用 `assess.sh` |
 | **Shell / Cron** | 定时 `assess.sh`，报告在 `deliverables/` |
 | **Jenkins / GitLab CI** | pipeline 中 `go build && ./scripts/assess.sh` |
 | **K8s Job** | 容器内运行 CLI，Secret 注入 APSARASTACK_* |
@@ -27,7 +27,7 @@ def handle_alert(payload: dict):
     return read("deliverables/01-告警业务影响评估报告.md")
 ```
 
-## JSON 摘要输出（供 Agent / API 使用）
+## JSON 摘要输出（供 API / Webhook 使用）
 
 ```bash
 ./bin/alert-assess assess --input alerts/x.json --deliverables deliverables --summary
