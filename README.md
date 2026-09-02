@@ -10,7 +10,7 @@ Skill 已内置在仓库：
 .cursor/skills/alert-impact-assessment/SKILL.md
 ```
 
-在 AI Studio 中导入 `dist/alert-impact-assessment-aistudio-import.zip`，或手动加载上述 Skill 目录。
+在 AI Studio 中导入 **`dist/alert-impact-assessment-aistudio.zip`**（含 Skill + Go 二进制，无需本机安装 Go）。
 
 触发示例：
 
@@ -57,10 +57,8 @@ chmod +x scripts/package.sh
 
 | 文件 | 用途 |
 |------|------|
-| `dist/alert-impact-assessment-skill.zip` | 完整项目包（CLI + Skill），解压见 [INSTALL.md](INSTALL.md) |
-| `dist/alert-impact-assessment-aistudio-import.zip` | **AI Studio** 导入（zip 内含 `alert-impact-assessment/SKILL.md`） |
-
-AI Studio 导入请用 `aistudio-import.zip`，不要用完整项目包。
+| **`dist/alert-impact-assessment-aistudio.zip`** | **AI Studio 导入**（Skill + Go 二进制 + 配置，推荐） |
+| `dist/alert-impact-assessment-skill.zip` | 开发者完整包（含 Go 源码），解压见 [INSTALL.md](INSTALL.md) |
 
 ## 文档
 

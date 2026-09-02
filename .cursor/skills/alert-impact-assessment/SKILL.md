@@ -24,7 +24,13 @@ description: >-
 ## 工作流
 
 ```
-预检 → 解析告警 → 运行 CLI → 展示摘要 + 交付物路径
+进入 Skill 根目录 → 预检 → 解析告警 → 运行 CLI → 展示摘要 + 交付物路径
+```
+
+**AI Studio 独立包**：解压或导入后，所有命令在 `alert-impact-assessment/` 目录下执行（含 `SKILL.md` 的目录）。
+
+```bash
+cd alert-impact-assessment
 ```
 
 ### Step 0：环境预检
@@ -77,7 +83,7 @@ description: >-
 | 限流策略 | [references/rate-limiting.md](references/rate-limiting.md) |
 | 其他平台集成 | [references/platform-integration.md](references/platform-integration.md) |
 | 故障排查 | [references/troubleshooting.md](references/troubleshooting.md) |
-| 完整设计 | [docs/SKILL-DESIGN.md](../../../docs/SKILL-DESIGN.md) |
+| 完整设计 | [docs/SKILL-DESIGN.md](docs/SKILL-DESIGN.md) |
 
 ## Agent 检查清单
 

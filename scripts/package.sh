@@ -15,24 +15,35 @@ echo "Building binaries..."
 mkdir -p dist/bin
 GOOS=linux GOARCH=amd64 go build -o dist/bin/alert-assess-linux ./cmd/alert-assess/
 GOOS=darwin GOARCH=arm64 go build -o dist/bin/alert-assess-darwin-arm64 ./cmd/alert-assess/
+GOOS=darwin GOARCH=amd64 go build -o dist/bin/alert-assess-darwin-amd64 ./cmd/alert-assess/
 
 FULL_ZIP="dist/alert-impact-assessment-skill.zip"
-AISTUDIO_ZIP="dist/alert-impact-assessment-aistudio-import.zip"
+AISTUDIO_ZIP="dist/alert-impact-assessment-aistudio.zip"
 rm -f "$FULL_ZIP" "$AISTUDIO_ZIP"
 
-echo "Packing full distribution zip..."
+echo "Packing full distribution zip (dev / 含 Go 源码)..."
 zip -r "$FULL_ZIP" \
   INSTALL.md README.md go.mod go.sum \
   "$SKILL_SRC/" \
   cmd/ internal/ config/ alerts/ scripts/ docs/ \
   deliverables/03-Skill设计说明文档.md \
   dist/bin/alert-assess-linux \
-  dist/bin/alert-assess-darwin-arm64
+  dist/bin/alert-assess-darwin-arm64 \
+  dist/bin/alert-assess-darwin-amd64
 
-echo "Packing AI Studio import zip (top-level skill folder)..."
+echo "Packing AI Studio zip (Skill + Go 二进制 + 配置，可直接导入)..."
 AISTUDIO_DIR="$(mktemp -d)/alert-impact-assessment"
-mkdir -p "$AISTUDIO_DIR"
+mkdir -p "$AISTUDIO_DIR/scripts" "$AISTUDIO_DIR/bin" "$AISTUDIO_DIR/deliverables" "$AISTUDIO_DIR/reports"
 cp -R "$SKILL_SRC/." "$AISTUDIO_DIR/"
+cp scripts/assess.sh "$AISTUDIO_DIR/scripts/"
+chmod +x "$AISTUDIO_DIR/scripts/assess.sh"
+cp -R config alerts docs "$AISTUDIO_DIR/"
+cp dist/bin/alert-assess-linux \
+  dist/bin/alert-assess-darwin-arm64 \
+  dist/bin/alert-assess-darwin-amd64 \
+  "$AISTUDIO_DIR/bin/"
+chmod +x "$AISTUDIO_DIR/bin/"*
+touch "$AISTUDIO_DIR/deliverables/.gitkeep"
 (
   cd "$(dirname "$AISTUDIO_DIR")"
   zip -r "$ROOT/$AISTUDIO_ZIP" alert-impact-assessment/
@@ -42,8 +53,8 @@ echo ""
 echo "Packages created:"
 ls -lh "$FULL_ZIP" "$AISTUDIO_ZIP"
 echo ""
-echo "  $FULL_ZIP"
-echo "    完整项目包（CLI + Skill 目录结构），解压见 INSTALL.md"
-echo ""
 echo "  $AISTUDIO_ZIP"
-echo "    AI Studio 导入 Skill 用（zip 内含 alert-impact-assessment/SKILL.md）"
+echo "    ★ AI Studio 导入此包（含 SKILL.md + Go 二进制 + scripts/config/alerts）"
+echo ""
+echo "  $FULL_ZIP"
+echo "    开发者完整包（含 Go 源码），解压见 INSTALL.md"

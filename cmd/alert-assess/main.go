@@ -181,6 +181,10 @@ func findProjectRoot() string {
 		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
 			return dir
 		}
+		// AI Studio 独立 Skill 包：无 go.mod，以 config/runbook-scenarios.yaml 标识根目录
+		if _, err := os.Stat(filepath.Join(dir, "config", "runbook-scenarios.yaml")); err == nil {
+			return dir
+		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
 			return ""

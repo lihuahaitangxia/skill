@@ -1,34 +1,54 @@
 # 安装说明
 
-## 解压
+## AI Studio 导入（推荐，含 Go 二进制）
 
-**完整项目包**（含 CLI、Go 源码）：
+1. 打包：
+
+```bash
+chmod +x scripts/package.sh
+./scripts/package.sh
+```
+
+2. 在 AI Studio → Skills → **+ 安装** → **上传 ZIP**，选择：
+
+```
+dist/alert-impact-assessment-aistudio.zip
+```
+
+3. 包内结构：
+
+```
+alert-impact-assessment-aistudio.zip
+└── alert-impact-assessment/
+    ├── SKILL.md
+    ├── references/
+    ├── scripts/assess.sh      # 无需本机安装 Go
+    ├── bin/                   # 预编译 alert-assess（Mac/Linux）
+    ├── config/
+    ├── alerts/
+    └── docs/
+```
+
+4. 在 AI Studio 对话中触发 Skill 后，终端命令应在 Skill 根目录执行：
+
+```bash
+cd alert-impact-assessment
+./scripts/assess.sh --validate
+./scripts/assess.sh --mock --summary
+```
+
+## 解压完整开发包（含 Go 源码）
 
 ```bash
 unzip alert-impact-assessment-skill.zip -d my-alert-skill
 cd my-alert-skill
 ```
 
-**AI Studio 导入 Skill**（上传 ZIP，需顶层 Skill 目录）：
-
-使用 `dist/alert-impact-assessment-aistudio-import.zip`
-
-结构应为：
-
-```
-alert-impact-assessment-aistudio-import.zip
-└── alert-impact-assessment/
-    ├── SKILL.md
-    └── references/
-```
-
 ## 方式 A：作为 AI Studio Skill 使用
 
-1. 在 AI Studio 导入 `dist/alert-impact-assessment-aistudio-import.zip`
-2. 或将 `.cursor/skills/alert-impact-assessment/` 与 `cmd/`、`internal/`、`config/`、`scripts/` 等一并部署到可执行环境
-3. 在对话中说「评估告警业务影响」触发 Skill 工作流
+导入 `alert-impact-assessment-aistudio.zip` 即可，包内已含 Go 二进制，**不需要**单独安装 Go。
 
-## 方式 B：仅 CLI 使用
+## 方式 B：开发者 CLI（含源码）
 
 ```bash
 # 需要 Go 1.22+
@@ -36,13 +56,11 @@ alert-impact-assessment-aistudio-import.zip
 ./scripts/assess.sh --mock --summary
 ```
 
-## 方式 C：预编译二进制（无需 Go）
-
-Linux amd64 用户可直接使用 `bin/alert-assess-linux`（若包内提供）：
+## 方式 C：预编译二进制（手动调用）
 
 ```bash
-chmod +x bin/alert-assess-linux
-./bin/alert-assess-linux assess --input alerts/sample-alerts.json --mock --deliverables deliverables
+chmod +x bin/alert-assess-darwin-arm64   # Apple Silicon Mac
+./bin/alert-assess-darwin-arm64 assess --input alerts/sample-alerts.json --mock --deliverables deliverables
 ```
 
 ## 环境变量（真实 Apsara Stack）
@@ -62,13 +80,13 @@ export APSARASTACK_CMS_ENDPOINT="..."
 
 | 路径 | 说明 |
 |------|------|
-| `.cursor/skills/alert-impact-assessment/` | AI Studio Skill |
-| `cmd/` + `internal/` | Go 评估引擎 |
+| `SKILL.md` + `references/` | AI Studio Skill |
+| `bin/` | 预编译 Go CLI（AI Studio 包） |
+| `cmd/` + `internal/` | Go 源码（仅完整开发包） |
 | `scripts/assess.sh` | 一键运行脚本 |
 | `config/runbook-scenarios.yaml` | 预案库 |
 | `alerts/sample-alerts.json` | 样例输入 |
 | `docs/` | 设计文档 |
-| `deliverables/03-Skill设计说明文档.md` | 完整设计说明 |
 
 ## 输出
 
